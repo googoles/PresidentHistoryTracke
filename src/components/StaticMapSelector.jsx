@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { regions } from '../data/regions';
+import { ArrowLeft } from 'lucide-react';
 
 // Mapping from SVG group IDs to our region keys
 const SVG_TO_REGION_MAP = {
@@ -25,6 +26,8 @@ const SVG_TO_REGION_MAP = {
 const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
   const [svgContent, setSvgContent] = useState('');
   const [hoveredRegion, setHoveredRegion] = useState(null);
+  const [zoomedProvince, setZoomedProvince] = useState(null);
+  const [viewBox, setViewBox] = useState(null);
   const svgRef = useRef(null);
 
   useEffect(() => {
@@ -39,10 +42,50 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
       });
   }, []);
 
+  // Calculate viewBox for zoomed province
+  const calculateViewBox = (groupElement) => {
+    const bbox = groupElement.getBBox();
+    // Use more padding for smaller regions like cities
+    const padding = bbox.width < 100 ? 40 : 20;
+    return `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`;
+  };
+
+  // Handle region zoom (provinces, metropolitan cities, and special cities)
+  const handleRegionZoom = (regionKey, svgRegionId) => {
+    const region = regions[regionKey];
+    // Allow zoom for provinces, metropolitan cities, and special cities (not national)
+    if (region && (region.type === 'province' || region.type === 'metropolitan' || region.type === 'special')) {
+      const svgElement = svgRef.current.querySelector('svg');
+      const groupElement = svgElement.querySelector(`g[id="${svgRegionId}"]`);
+      
+      if (groupElement) {
+        const newViewBox = calculateViewBox(groupElement);
+        setViewBox(newViewBox);
+        setZoomedProvince(regionKey);
+      }
+    }
+    onRegionSelect(regionKey);
+  };
+
+  // Reset zoom
+  const resetZoom = () => {
+    setZoomedProvince(null);
+    setViewBox(null);
+  };
+
   useEffect(() => {
     if (!svgContent || !svgRef.current) return;
 
     const svgElement = svgRef.current;
+    const svg = svgElement.querySelector('svg');
+    
+    // Apply viewBox if zoomed
+    if (svg && viewBox) {
+      svg.setAttribute('viewBox', viewBox);
+    } else if (svg) {
+      // Reset to original viewBox
+      svg.setAttribute('viewBox', '0 0 509 716.1');
+    }
     
     // Find all region groups and add interactivity
     Object.keys(SVG_TO_REGION_MAP).forEach(svgRegionId => {
@@ -50,6 +93,13 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
       const groupElement = svgElement.querySelector(`g[id="${svgRegionId}"]`);
       
       if (groupElement) {
+        // Hide other regions when zoomed
+        if (zoomedProvince && regionKey !== zoomedProvince) {
+          groupElement.style.display = 'none';
+        } else {
+          groupElement.style.display = 'block';
+        }
+
         // Style the region based on selection state
         const isSelected = selectedRegion === regionKey;
         const isHovered = hoveredRegion === regionKey;
@@ -94,7 +144,7 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
         const handleClick = (e) => {
           e.preventDefault();
           e.stopPropagation();
-          onRegionSelect(regionKey);
+          handleRegionZoom(regionKey, svgRegionId);
         };
 
         const handleMouseEnter = () => setHoveredRegion(regionKey);
@@ -112,7 +162,7 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
         };
       }
     });
-  }, [svgContent, selectedRegion, hoveredRegion, onRegionSelect]);
+  }, [svgContent, selectedRegion, hoveredRegion, onRegionSelect, zoomedProvince, viewBox]);
 
   const handleNationalSelect = () => {
     onRegionSelect('national');
@@ -135,28 +185,50 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
     <div className="mb-8">
       <div className="mb-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">지역 선택</h2>
-          <button
-            onClick={handleNationalSelect}
-            className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center ${
-              selectedRegion === 'national'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
-              <path fillRule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clipRule="evenodd" />
-            </svg>
-            전국
-          </button>
+          <div className="flex items-center gap-3">
+            {zoomedProvince && (
+              <button
+                onClick={resetZoom}
+                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                title="전체 지도로 돌아가기"
+              >
+                <ArrowLeft className="w-5 h-5 text-gray-700" />
+              </button>
+            )}
+            <h2 className="text-2xl font-bold text-gray-800">
+              {zoomedProvince ? `${regions[zoomedProvince].name} 상세` : '지역 선택'}
+            </h2>
+          </div>
+          {!zoomedProvince && (
+            <button
+              onClick={handleNationalSelect}
+              className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center ${
+                selectedRegion === 'national'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
+                <path fillRule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clipRule="evenodd" />
+              </svg>
+              전국
+            </button>
+          )}
         </div>
+        
+        {/* Zoom instruction */}
+        {!zoomedProvince && (
+          <div className="mb-2 text-sm text-gray-600 text-center">
+            지역을 클릭하면 상세 구/군을 볼 수 있습니다
+          </div>
+        )}
         
         <div className="relative bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex justify-center">
             <div 
               ref={svgRef}
-              className="w-full max-w-xs"
+              className={`w-full ${zoomedProvince ? 'max-w-md' : 'max-w-xs'}`}
               style={{ height: 'auto' }}
               dangerouslySetInnerHTML={{ __html: svgContent }}
             />
