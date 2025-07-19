@@ -22,13 +22,13 @@ const PromiseCard = ({ promise }) => {
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${statusConfig[promise.status]?.borderColor || 'border-gray-500'} hover:shadow-lg transition-shadow duration-200`}>
+    <div className={`bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border-l-4 ${statusConfig[promise.status]?.borderColor || 'border-gray-500'} hover:shadow-lg transition-shadow duration-200`}>
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">{promise.title}</h3>
-          <div className="flex items-center gap-3 text-sm text-gray-600">
-            <span className="bg-gray-100 px-2 py-1 rounded">{promise.category}</span>
-            <span className="bg-gray-100 px-2 py-1 rounded">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-slate-100 mb-2">{promise.title}</h3>
+          <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-slate-300">
+            <span className="bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded">{promise.category}</span>
+            <span className="bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded">
               {promise.level === 'national' ? '대통령 공약' : '지자체 공약'}
             </span>
           </div>
@@ -36,14 +36,14 @@ const PromiseCard = ({ promise }) => {
         {getStatusBadge()}
       </div>
 
-      <p className="text-gray-700 mb-4">{promise.description}</p>
+      <p className="text-gray-700 dark:text-slate-300 mb-4">{promise.description}</p>
 
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-600">진행률</span>
-          <span className="text-sm font-bold text-gray-800">{promise.progress}%</span>
+          <span className="text-sm font-medium text-gray-600 dark:text-slate-300">진행률</span>
+          <span className="text-sm font-bold text-gray-800 dark:text-slate-100">{promise.progress}%</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3">
+        <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3">
           <div
             className={`h-3 rounded-full transition-all duration-500 ${getProgressBarColor()}`}
             style={{ width: `${promise.progress}%` }}
@@ -51,7 +51,7 @@ const PromiseCard = ({ promise }) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+      <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-slate-300 mb-4">
         <div className="flex items-center gap-1">
           <Calendar className="w-4 h-4" />
           <span>시작: {formatDate(promise.startDate)}</span>
@@ -65,14 +65,14 @@ const PromiseCard = ({ promise }) => {
       {promise.statistics && promise.statistics.length > 0 && (
         <div className="grid grid-cols-2 gap-4 mb-4">
           {promise.statistics.map((stat, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-3">
+            <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
-                <BarChart3 className="w-4 h-4 text-gray-500" />
-                <span className="text-xs text-gray-600">{stat.label}</span>
+                <BarChart3 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <span className="text-xs text-gray-600 dark:text-gray-300">{stat.label}</span>
               </div>
-              <p className="text-lg font-bold text-gray-800">
+              <p className="text-lg font-bold text-gray-800 dark:text-white">
                 {stat.value}
-                <span className="text-sm font-normal text-gray-600 ml-1">{stat.unit}</span>
+                <span className="text-sm font-normal text-gray-600 dark:text-gray-300 ml-1">{stat.unit}</span>
               </p>
             </div>
           ))}
@@ -80,8 +80,8 @@ const PromiseCard = ({ promise }) => {
       )}
 
       {promise.relatedArticles && promise.relatedArticles.length > 0 && (
-        <div className="border-t pt-4">
-          <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
             <TrendingUp className="w-4 h-4" />
             관련 기사
           </h4>
@@ -92,12 +92,12 @@ const PromiseCard = ({ promise }) => {
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-start gap-2 text-sm text-blue-600 hover:text-blue-800 group"
+                className="flex items-start gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 group"
               >
-                <ExternalLink className="w-3 h-3 mt-1 flex-shrink-0 group-hover:text-blue-800" />
+                <ExternalLink className="w-3 h-3 mt-1 flex-shrink-0 group-hover:text-blue-800 dark:group-hover:text-blue-300" />
                 <div>
                   <p className="font-medium">{article.title}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {article.source} · {article.date}
                   </p>
                 </div>

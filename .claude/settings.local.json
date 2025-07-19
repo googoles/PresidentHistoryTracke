@@ -9,7 +9,9 @@
       "Bash(cp:*)",
       "Bash(git add:*)",
       "Bash(npm run build:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(npm start)",
+      "Bash(pkill:*)"
     ],
     "deny": []
   }

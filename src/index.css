@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Enhanced Dark mode styles */
+.dark {
+  background-color: #0f172a !important; /* slate-900 */
+  color: #f1f5f9 !important; /* slate-100 */
+}
+
+.dark body {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

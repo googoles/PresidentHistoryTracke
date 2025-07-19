@@ -24,15 +24,15 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">역대 공약 이행 현황</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-4">역대 공약 이행 현황</h2>
         
         <div className="flex flex-wrap gap-4 mb-6">
           <select
             value={selectedLevel}
             onChange={(e) => setSelectedLevel(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
           >
             <option value="all">전체 레벨</option>
             <option value="national">국가</option>
@@ -42,7 +42,7 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
           <select
             value={selectedParty}
             onChange={(e) => setSelectedParty(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
           >
             <option value="all">전체 정당</option>
             <option value="국민의힘">국민의힘</option>
@@ -59,16 +59,16 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
             <div
               key={official.id}
               onClick={() => onSelectOfficial(official)}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
+              className="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-slate-700"
             >
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="w-8 h-8 text-gray-500" />
+                <div className="w-16 h-16 bg-gray-200 dark:bg-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <User className="w-8 h-8 text-gray-500 dark:text-slate-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-lg text-gray-800">{official.name}</h3>
-                  <p className="text-sm text-gray-600">{official.position}</p>
-                  <p className="text-xs text-gray-500">{official.term}</p>
+                  <h3 className="font-bold text-lg text-gray-800 dark:text-slate-100">{official.name}</h3>
+                  <p className="text-sm text-gray-600 dark:text-slate-300">{official.position}</p>
+                  <p className="text-xs text-gray-500 dark:text-slate-400">{official.term}</p>
                   <span className={`inline-block mt-1 text-xs font-medium px-2 py-1 rounded ${
                     official.party === '국민의힘' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
                   }`}>
@@ -84,7 +84,7 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
                     {progressRate}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 dark:bg-slate-600 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full transition-all duration-300 ${
                       progressRate >= 70 ? 'bg-green-500' :
@@ -100,28 +100,28 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
                   <div className="flex items-center justify-center text-green-600 mb-1">
                     <CheckCircle className="w-5 h-5" />
                   </div>
-                  <p className="text-xs text-gray-600">완료</p>
-                  <p className="text-sm font-bold">{official.completedPromises}</p>
+                  <p className="text-xs text-gray-600 dark:text-slate-300">완료</p>
+                  <p className="text-sm font-bold text-gray-800 dark:text-white">{official.completedPromises}</p>
                 </div>
                 <div>
                   <div className="flex items-center justify-center text-blue-600 mb-1">
                     <Clock className="w-5 h-5" />
                   </div>
-                  <p className="text-xs text-gray-600">진행중</p>
-                  <p className="text-sm font-bold">{official.inProgressPromises}</p>
+                  <p className="text-xs text-gray-600 dark:text-slate-300">진행중</p>
+                  <p className="text-sm font-bold text-gray-800 dark:text-white">{official.inProgressPromises}</p>
                 </div>
                 <div>
                   <div className="flex items-center justify-center text-red-600 mb-1">
                     <XCircle className="w-5 h-5" />
                   </div>
-                  <p className="text-xs text-gray-600">미달성</p>
-                  <p className="text-sm font-bold">{official.failedPromises}</p>
+                  <p className="text-xs text-gray-600 dark:text-slate-300">미달성</p>
+                  <p className="text-sm font-bold text-gray-800 dark:text-white">{official.failedPromises}</p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                <span className="text-sm text-gray-600">총 {official.totalPromises}개 공약</span>
-                <ChevronRight className="w-5 h-5 text-gray-400" />
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-600">
+                <span className="text-sm text-gray-600 dark:text-slate-300">총 {official.totalPromises}개 공약</span>
+                <ChevronRight className="w-5 h-5 text-gray-400 dark:text-slate-500" />
               </div>
             </div>
           );

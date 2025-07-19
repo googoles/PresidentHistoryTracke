@@ -5,6 +5,7 @@ import FilterPanel from './components/FilterPanel';
 import StatsOverview from './components/StatsOverview';
 import OfficialsList from './components/OfficialsList';
 import OfficialDetail from './components/OfficialDetail';
+import DarkModeToggle from './components/DarkModeToggle';
 import { promises } from './data/promises';
 import { regions } from './data/regions';
 import officialsData from './data/officials.json';
@@ -71,25 +72,31 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
-              <Building2 className="w-8 h-8 text-blue-600" />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">대한민국 공약 추적 시스템</h1>
-                <p className="text-sm text-gray-600">대통령 및 지자체장 공약 이행 현황</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
+        <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700 transition-colors duration-300">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between py-4">
+              <div className="flex items-center gap-3">
+                <Building2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">대한민국 공약 추적 시스템</h1>
+                  <p className="text-sm text-gray-600 dark:text-slate-300">대통령 및 지자체장 공약 이행 현황</p>
+                </div>
               </div>
+              <DarkModeToggle />
             </div>
           </div>
-        </div>
-      </header>
+          <div className="text-center py-2 text-xs">
+            <span className="text-gray-500 dark:text-slate-300">
+              Background should change in dark mode
+            </span>
+          </div>
+        </header>
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Main View Toggle */}
         <div className="mb-6 flex justify-center">
-          <div className="bg-white rounded-lg border border-gray-200 p-1 flex gap-1">
+          <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-1 flex gap-1">
             <button
               onClick={() => {
                 setMainView('regions');
@@ -98,7 +105,7 @@ function App() {
               className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
                 mainView === 'regions'
                   ? 'bg-blue-500 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                  : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
               }`}
             >
               <Map className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -109,7 +116,7 @@ function App() {
               className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
                 mainView === 'officials'
                   ? 'bg-blue-500 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                  : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
               }`}
             >
               <Users className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -142,13 +149,13 @@ function App() {
             {/* Historical Period Selector */}
             {selectedRegion === 'gyeonggi' && (
               <div className="mb-6 flex justify-center">
-                <div className="bg-white rounded-lg border border-gray-200 p-1 flex gap-1">
+                <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-1 flex gap-1">
                   <button
                     onClick={() => setSelectedPeriod('current')}
                     className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
                       selectedPeriod === 'current'
                         ? 'bg-blue-500 text-white shadow-sm'
-                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                        : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
                     }`}
                   >
                     현재 (김동연)
@@ -158,7 +165,7 @@ function App() {
                     className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
                       selectedPeriod === 'historical'
                         ? 'bg-blue-500 text-white shadow-sm'
-                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                        : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
                     }`}
                   >
                     이전 (이재명)
@@ -168,31 +175,31 @@ function App() {
             )}
 
         {currentRegion && (
-          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h2 className="text-xl font-bold text-blue-900 mb-2">
+          <div className="mb-6 bg-blue-50 dark:bg-slate-800/50 border border-blue-200 dark:border-slate-600 rounded-lg p-4">
+            <h2 className="text-xl font-bold text-blue-900 dark:text-slate-100 mb-2">
               {currentRegion.name} 공약 현황
               {selectedRegion === 'gyeonggi' && selectedPeriod === 'historical' && (
-                <span className="text-sm font-normal text-blue-700 ml-2">(이재명 시기)</span>
+                <span className="text-sm font-normal text-blue-700 dark:text-blue-300 ml-2">(이재명 시기)</span>
               )}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <span className="font-medium text-gray-700">단체장:</span>{' '}
-                <span className="text-gray-900">{getCurrentOfficialInfo().leader}</span>
+                <span className="font-medium text-gray-700 dark:text-gray-300">단체장:</span>{' '}
+                <span className="text-gray-900 dark:text-white">{getCurrentOfficialInfo().leader}</span>
               </div>
               <div>
-                <span className="font-medium text-gray-700">소속정당:</span>{' '}
+                <span className="font-medium text-gray-700 dark:text-gray-300">소속정당:</span>{' '}
                 <span className={getCurrentOfficialInfo().party === '국민의힘' ? 'text-red-600' : 'text-blue-600'}>
                   {getCurrentOfficialInfo().party}
                 </span>
               </div>
               <div>
-                <span className="font-medium text-gray-700">임기:</span>{' '}
-                <span className="text-gray-900">{getCurrentOfficialInfo().term}</span>
+                <span className="font-medium text-gray-700 dark:text-gray-300">임기:</span>{' '}
+                <span className="text-gray-900 dark:text-white">{getCurrentOfficialInfo().term}</span>
               </div>
               <div>
-                <span className="font-medium text-gray-700">인구:</span>{' '}
-                <span className="text-gray-900">{currentRegion.population}명</span>
+                <span className="font-medium text-gray-700 dark:text-gray-300">인구:</span>{' '}
+                <span className="text-gray-900 dark:text-white">{currentRegion.population}명</span>
               </div>
             </div>
           </div>
@@ -245,13 +252,13 @@ function App() {
         )}
       </main>
 
-      <footer className="bg-gray-800 text-white py-8 mt-16">
+      <footer className="bg-gray-800 dark:bg-slate-950 text-white py-8 mt-16 transition-colors duration-300">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-400 dark:text-slate-400">
               © 2024 대한민국 공약 추적 시스템. 모든 데이터는 공개된 정보를 기반으로 합니다.
             </p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-slate-500 mt-2">
               본 시스템은 시민들의 알권리 증진을 위해 제작되었습니다.
             </p>
           </div>

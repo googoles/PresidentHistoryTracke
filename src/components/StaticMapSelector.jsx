@@ -135,7 +135,9 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
             } else {
               path.style.fill = '#9CA3AF'; // gray-400
             }
-            path.style.stroke = '#FFFFFF';
+            // Check if dark mode is active
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            path.style.stroke = isDarkMode ? '#374151' : '#FFFFFF'; // slate-700 for dark, white for light
             path.style.strokeWidth = '0.5';
           }
         });
@@ -171,10 +173,10 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
   if (!svgContent) {
     return (
       <div className="mb-8">
-        <div className="flex items-center justify-center h-96 bg-gray-100 rounded-lg">
+        <div className="flex items-center justify-center h-96 bg-gray-100 dark:bg-slate-700 rounded-lg">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">지도를 불러오는 중...</p>
+            <p className="text-gray-600 dark:text-slate-300">지도를 불러오는 중...</p>
           </div>
         </div>
       </div>
@@ -189,13 +191,13 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
             {zoomedProvince && (
               <button
                 onClick={resetZoom}
-                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
                 title="전체 지도로 돌아가기"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-700" />
+                <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-slate-300" />
               </button>
             )}
-            <h2 className="text-2xl font-bold text-gray-800">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100">
               {zoomedProvince ? `${regions[zoomedProvince].name} 상세` : '지역 선택'}
             </h2>
           </div>
@@ -205,7 +207,7 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
               className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center ${
                 selectedRegion === 'national'
                   ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
               }`}
             >
               <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -219,12 +221,12 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
         
         {/* Zoom instruction */}
         {!zoomedProvince && (
-          <div className="mb-2 text-sm text-gray-600 text-center">
+          <div className="mb-2 text-sm text-gray-600 dark:text-slate-300 text-center">
             지역을 클릭하면 상세 구/군을 볼 수 있습니다
           </div>
         )}
         
-        <div className="relative bg-white rounded-lg border border-gray-200 p-4">
+        <div className="relative bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4">
           <div className="flex justify-center">
             <div 
               ref={svgRef}
@@ -236,11 +238,11 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
           
           {/* Hover tooltip */}
           {hoveredRegion && regions[hoveredRegion] && (
-            <div className="absolute top-4 left-4 bg-white border border-gray-200 rounded-lg shadow-lg p-3 pointer-events-none z-10">
-              <h3 className="font-semibold text-gray-800 mb-1">
+            <div className="absolute top-4 left-4 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg p-3 pointer-events-none z-10">
+              <h3 className="font-semibold text-gray-800 dark:text-slate-100 mb-1">
                 {regions[hoveredRegion].name}
               </h3>
-              <div className="space-y-1 text-xs text-gray-600">
+              <div className="space-y-1 text-xs text-gray-600 dark:text-slate-300">
                 <p><span className="font-medium">단체장:</span> {regions[hoveredRegion].leader}</p>
                 <p>
                   <span className="font-medium">정당:</span>{' '}
@@ -256,7 +258,7 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
       </div>
 
       {/* Legend */}
-      <div className="mt-4 text-sm text-gray-600">
+      <div className="mt-4 text-sm text-gray-600 dark:text-slate-300">
         <div className="flex items-center space-x-6 flex-wrap">
           <div className="flex items-center">
             <div className="w-3 h-3 bg-violet-500 rounded-sm mr-2"></div>
