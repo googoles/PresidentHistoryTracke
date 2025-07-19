@@ -1,0 +1,383 @@
+{
+  "national": [
+    {
+      "id": "nat-001",
+      "title": "250만호 주택 공급",
+      "category": "부동산정책",
+      "level": "national",
+      "description": "5년간 250만호 이상 주택 공급으로 주택 시장 안정화",
+      "status": "진행중",
+      "progress": 35,
+      "startDate": "2022-05-10",
+      "targetDate": "2027-05-09",
+      "applicableRegions": ["seoul", "busan", "incheon", "gyeonggi"],
+      "relatedArticles": [
+        {
+          "title": "윤석열 정부 2년차 공약 이행률 19%",
+          "url": "https://www.newstof.com/news/articleView.html?idxno=22702",
+          "date": "2024-05-31",
+          "source": "뉴스톱"
+        }
+      ],
+      "statistics": [
+        { "label": "공급된 주택", "value": "875,000", "unit": "호" },
+        { "label": "목표 대비", "value": "35", "unit": "%" }
+      ]
+    },
+    {
+      "id": "nat-002",
+      "title": "부모급여 확대",
+      "category": "복지정책",
+      "level": "national",
+      "description": "0-1세 부모급여를 월 100만원으로 확대",
+      "status": "달성",
+      "progress": 100,
+      "startDate": "2022-05-10",
+      "targetDate": "2023-01-01",
+      "applicableRegions": ["all"],
+      "relatedArticles": [
+        {
+          "title": "부모급여 100만원 시대 개막",
+          "url": "#",
+          "date": "2023-01-01",
+          "source": "정책브리핑"
+        }
+      ],
+      "statistics": [
+        { "label": "수혜 가구", "value": "250,000", "unit": "가구" },
+        { "label": "월 지급액", "value": "100", "unit": "만원" }
+      ]
+    },
+    {
+      "id": "nat-003",
+      "title": "디지털플랫폼정부 구현",
+      "category": "디지털정책",
+      "level": "national",
+      "description": "모든 행정서비스를 하나의 앱으로 이용 가능한 디지털정부 구축",
+      "status": "진행중",
+      "progress": 45,
+      "startDate": "2022-05-10",
+      "targetDate": "2027-05-09",
+      "applicableRegions": ["all"],
+      "relatedArticles": [
+        {
+          "title": "디지털플랫폼정부 기본계획 발표",
+          "url": "#",
+          "date": "2023-04-18",
+          "source": "행정안전부"
+        }
+      ],
+      "statistics": [
+        { "label": "통합된 서비스", "value": "1,200", "unit": "개" },
+        { "label": "앱 다운로드", "value": "500", "unit": "만건" }
+      ]
+    },
+    {
+      "id": "nat-004",
+      "title": "병사 월급 200만원",
+      "category": "국방정책",
+      "level": "national",
+      "description": "병사 월급을 2025년까지 200만원으로 인상",
+      "status": "진행중",
+      "progress": 60,
+      "startDate": "2022-05-10",
+      "targetDate": "2025-12-31",
+      "applicableRegions": ["all"],
+      "relatedArticles": [
+        {
+          "title": "2024년 병사 월급 125만원으로 인상",
+          "url": "#",
+          "date": "2024-01-01",
+          "source": "국방부"
+        }
+      ],
+      "statistics": [
+        { "label": "현재 월급", "value": "125", "unit": "만원" },
+        { "label": "목표 대비", "value": "62.5", "unit": "%" }
+      ]
+    },
+    {
+      "id": "nat-005",
+      "title": "대입 정시 50% 확대",
+      "category": "교육정책",
+      "level": "national",
+      "description": "주요 대학 정시모집 비율을 50%까지 확대",
+      "status": "부분달성",
+      "progress": 70,
+      "startDate": "2022-05-10",
+      "targetDate": "2024-12-31",
+      "applicableRegions": ["all"],
+      "relatedArticles": [
+        {
+          "title": "서울 주요대학 정시비율 40% 달성",
+          "url": "#",
+          "date": "2024-03-15",
+          "source": "교육부"
+        }
+      ],
+      "statistics": [
+        { "label": "평균 정시비율", "value": "40", "unit": "%" },
+        { "label": "참여 대학", "value": "38", "unit": "개교" }
+      ]
+    }
+  ],
+  "seoul": [
+    {
+      "id": "seoul-001",
+      "title": "상생주택 7만호 공급",
+      "category": "주거정책",
+      "level": "local",
+      "description": "주거취약계층을 위한 상생주택 7만호 공급",
+      "status": "진행중",
+      "progress": 25,
+      "startDate": "2022-07-01",
+      "targetDate": "2026-06-30",
+      "relatedArticles": [
+        {
+          "title": "오세훈 서울시장 공약 62% 전면 수정 필요",
+          "url": "https://greentransport.org/news/?bmode=view&idx=15615856",
+          "date": "2023-07-04",
+          "source": "녹색교통운동"
+        }
+      ],
+      "statistics": [
+        { "label": "공급 완료", "value": "17,500", "unit": "호" },
+        { "label": "진행률", "value": "25", "unit": "%" }
+      ]
+    },
+    {
+      "id": "seoul-002",
+      "title": "GTX-A 노선 개통",
+      "category": "교통정책",
+      "level": "local",
+      "description": "수도권 광역급행철도 GTX-A 노선 완공 및 개통",
+      "status": "진행중",
+      "progress": 75,
+      "startDate": "2022-07-01",
+      "targetDate": "2024-12-31",
+      "relatedArticles": [
+        {
+          "title": "GTX-A 구간 2024년 3월 개통 예정",
+          "url": "#",
+          "date": "2024-01-10",
+          "source": "서울시"
+        }
+      ],
+      "statistics": [
+        { "label": "총 노선길이", "value": "43.6", "unit": "km" },
+        { "label": "정거장 수", "value": "8", "unit": "개" }
+      ]
+    },
+    {
+      "id": "seoul-003",
+      "title": "중곡 의료안심주택단지 조성",
+      "category": "복지정책",
+      "level": "local",
+      "description": "의료시설과 연계한 노인 안심주택단지 조성",
+      "status": "진행중",
+      "progress": 30,
+      "startDate": "2022-07-01",
+      "targetDate": "2025-12-31",
+      "relatedArticles": [
+        {
+          "title": "중곡동 의료안심주택 설계 공모 진행",
+          "url": "#",
+          "date": "2023-09-20",
+          "source": "서울시"
+        }
+      ],
+      "statistics": [
+        { "label": "예정 세대수", "value": "1,200", "unit": "세대" },
+        { "label": "의료시설", "value": "5", "unit": "개소" }
+      ]
+    },
+    {
+      "id": "seoul-004",
+      "title": "동행·매력 특별시 프로젝트",
+      "category": "도시재생",
+      "level": "local",
+      "description": "시민과 함께하는 매력적인 도시공간 조성",
+      "status": "진행중",
+      "progress": 40,
+      "startDate": "2022-07-01",
+      "targetDate": "2026-06-30",
+      "relatedArticles": [
+        {
+          "title": "서울시 동행매력 프로젝트 첫 성과 발표",
+          "url": "#",
+          "date": "2023-12-15",
+          "source": "서울시"
+        }
+      ],
+      "statistics": [
+        { "label": "조성 공간", "value": "25", "unit": "개소" },
+        { "label": "시민 참여", "value": "100,000", "unit": "명" }
+      ]
+    },
+    {
+      "id": "seoul-005",
+      "title": "따릉이 10만대 확대",
+      "category": "교통정책",
+      "level": "local",
+      "description": "공공자전거 따릉이를 10만대까지 확대",
+      "status": "진행중",
+      "progress": 55,
+      "startDate": "2022-07-01",
+      "targetDate": "2025-12-31",
+      "relatedArticles": [
+        {
+          "title": "따릉이 5.5만대 돌파, 이용자 급증",
+          "url": "#",
+          "date": "2024-02-20",
+          "source": "서울시"
+        }
+      ],
+      "statistics": [
+        { "label": "현재 보유대수", "value": "55,000", "unit": "대" },
+        { "label": "대여소", "value": "3,000", "unit": "개소" }
+      ]
+    }
+  ],
+  "busan": [
+    {
+      "id": "busan-001",
+      "title": "2030 세계박람회 유치",
+      "category": "국제행사",
+      "level": "local",
+      "description": "2030 부산세계박람회 유치 및 인프라 구축",
+      "status": "미달성",
+      "progress": 0,
+      "startDate": "2022-07-01",
+      "targetDate": "2023-11-28",
+      "relatedArticles": [
+        {
+          "title": "2030 세계박람회 유치 실패, 사우디에 패배",
+          "url": "#",
+          "date": "2023-11-28",
+          "source": "부산시"
+        }
+      ],
+      "statistics": [
+        { "label": "투표 득표", "value": "29", "unit": "표" },
+        { "label": "경쟁국(사우디)", "value": "119", "unit": "표" }
+      ]
+    },
+    {
+      "id": "busan-002",
+      "title": "부산신항 확장",
+      "category": "항만정책",
+      "level": "local",
+      "description": "부산신항 2-5, 2-6단계 확장 사업",
+      "status": "진행중",
+      "progress": 45,
+      "startDate": "2022-07-01",
+      "targetDate": "2026-12-31",
+      "relatedArticles": [
+        {
+          "title": "부산신항 2-5단계 공사 순조롭게 진행",
+          "url": "#",
+          "date": "2024-03-10",
+          "source": "부산항만공사"
+        }
+      ],
+      "statistics": [
+        { "label": "선석 추가", "value": "7", "unit": "개" },
+        { "label": "처리능력 증가", "value": "300", "unit": "만TEU" }
+      ]
+    },
+    {
+      "id": "busan-003",
+      "title": "해운대 재개발",
+      "category": "도시재생",
+      "level": "local",
+      "description": "해운대 일대 도시재생 및 관광인프라 개선",
+      "status": "진행중",
+      "progress": 35,
+      "startDate": "2022-07-01",
+      "targetDate": "2026-06-30",
+      "relatedArticles": [
+        {
+          "title": "해운대 특화거리 조성사업 착공",
+          "url": "#",
+          "date": "2023-10-15",
+          "source": "부산시"
+        }
+      ],
+      "statistics": [
+        { "label": "재생면적", "value": "500,000", "unit": "㎡" },
+        { "label": "투자금액", "value": "3,000", "unit": "억원" }
+      ]
+    }
+  ],
+  "gyeonggi": [
+    {
+      "id": "gyeonggi-001",
+      "title": "경기도 기본소득",
+      "category": "복지정책",
+      "level": "local",
+      "description": "전 도민 대상 기본소득 도입",
+      "status": "중단",
+      "progress": 10,
+      "startDate": "2022-07-01",
+      "targetDate": "2026-06-30",
+      "relatedArticles": [
+        {
+          "title": "김동연 지사, 기본소득 대신 맞춤형 복지 추진",
+          "url": "#",
+          "date": "2023-03-20",
+          "source": "경기도"
+        }
+      ],
+      "statistics": [
+        { "label": "시범사업 참여", "value": "10,000", "unit": "명" },
+        { "label": "예산 전환", "value": "100", "unit": "%" }
+      ]
+    },
+    {
+      "id": "gyeonggi-002",
+      "title": "평택 브레인시티 조성",
+      "category": "산업정책",
+      "level": "local",
+      "description": "평택 고덕국제신도시 내 첨단산업단지 조성",
+      "status": "진행중",
+      "progress": 50,
+      "startDate": "2022-07-01",
+      "targetDate": "2027-12-31",
+      "relatedArticles": [
+        {
+          "title": "평택 브레인시티 1단계 분양 시작",
+          "url": "#",
+          "date": "2024-01-25",
+          "source": "경기도"
+        }
+      ],
+      "statistics": [
+        { "label": "조성면적", "value": "165", "unit": "만㎡" },
+        { "label": "유치기업", "value": "50", "unit": "개사" }
+      ]
+    },
+    {
+      "id": "gyeonggi-003",
+      "title": "김포골드라인 연장",
+      "category": "교통정책",
+      "level": "local",
+      "description": "김포골드라인 서울 연장 및 증량",
+      "status": "진행중",
+      "progress": 20,
+      "startDate": "2022-07-01",
+      "targetDate": "2028-12-31",
+      "relatedArticles": [
+        {
+          "title": "김포골드라인 서울 5호선 직결 확정",
+          "url": "#",
+          "date": "2023-12-01",
+          "source": "국토부"
+        }
+      ],
+      "statistics": [
+        { "label": "연장구간", "value": "6.5", "unit": "km" },
+        { "label": "추가차량", "value": "20", "unit": "편성" }
+      ]
+    }
+  ]
+}
