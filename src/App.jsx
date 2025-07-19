@@ -1,13 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import RegionSelector from './components/RegionSelector';
 import StaticMapSelector from './components/StaticMapSelector';
 import PromiseCard from './components/PromiseCard';
 import FilterPanel from './components/FilterPanel';
 import StatsOverview from './components/StatsOverview';
+import OfficialsList from './components/OfficialsList';
+import OfficialDetail from './components/OfficialDetail';
 import { promises } from './data/promises';
 import { regions } from './data/regions';
+import officialsData from './data/officials.json';
 import { filterPromises, getPromisesByRegion, sortPromisesByStatus } from './utils/helpers';
-import { Building2, Map, LayoutGrid } from 'lucide-react';
+import { Building2, Map, Users } from 'lucide-react';
 
 function App() {
   const [selectedRegion, setSelectedRegion] = useState('seoul');
@@ -15,11 +17,16 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'map'
+  const [mainView, setMainView] = useState('regions'); // 'regions' or 'officials'
+  const [selectedOfficial, setSelectedOfficial] = useState(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('current'); // 'current' or 'historical'
 
   const regionPromises = useMemo(() => {
+    if (selectedPeriod === 'historical' && selectedRegion === 'gyeonggi') {
+      return promises.gyeonggi_historical || [];
+    }
     return getPromisesByRegion(promises, selectedRegion);
-  }, [selectedRegion]);
+  }, [selectedRegion, selectedPeriod]);
 
   const filteredPromises = useMemo(() => {
     const filters = {
@@ -33,6 +40,35 @@ function App() {
   }, [regionPromises, selectedLevel, selectedCategory, selectedStatus, searchTerm]);
 
   const currentRegion = regions[selectedRegion];
+  
+  const getCurrentOfficialInfo = () => {
+    if (selectedRegion === 'gyeonggi' && selectedPeriod === 'historical') {
+      return {
+        leader: '이재명',
+        party: '더불어민주당',
+        term: '2018.07.01 ~ 2022.06.30'
+      };
+    }
+    return currentRegion;
+  };
+
+  const allPromises = useMemo(() => {
+    const promisesList = [];
+    Object.entries(promises).forEach(([region, regionPromises]) => {
+      regionPromises.forEach(promise => {
+        promisesList.push(promise);
+      });
+    });
+    return promisesList;
+  }, []);
+
+  const handleSelectOfficial = (official) => {
+    setSelectedOfficial(official);
+  };
+
+  const handleBackToList = () => {
+    setSelectedOfficial(null);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -51,66 +87,108 @@ function App() {
       </header>
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* View Toggle */}
+        {/* Main View Toggle */}
         <div className="mb-6 flex justify-center">
           <div className="bg-white rounded-lg border border-gray-200 p-1 flex gap-1">
             <button
-              onClick={() => setViewMode('grid')}
+              onClick={() => {
+                setMainView('regions');
+                setSelectedOfficial(null);
+              }}
               className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
-                viewMode === 'grid'
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-              }`}
-            >
-              <LayoutGrid className="w-4 h-4 mr-2 flex-shrink-0" />
-              격자 보기
-            </button>
-            <button
-              onClick={() => setViewMode('map')}
-              className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
-                viewMode === 'map'
+                mainView === 'regions'
                   ? 'bg-blue-500 text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
               }`}
             >
               <Map className="w-4 h-4 mr-2 flex-shrink-0" />
-              지도 보기
+              지역별 공약
+            </button>
+            <button
+              onClick={() => setMainView('officials')}
+              className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
+                mainView === 'officials'
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+              }`}
+            >
+              <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+              인물별 공약
             </button>
           </div>
         </div>
 
-        {/* Region Selector */}
-        {viewMode === 'grid' ? (
-          <RegionSelector 
-            selectedRegion={selectedRegion} 
-            onRegionSelect={setSelectedRegion} 
-          />
+        {mainView === 'officials' ? (
+          selectedOfficial ? (
+            <OfficialDetail 
+              official={selectedOfficial}
+              promises={allPromises}
+              onBack={handleBackToList}
+            />
+          ) : (
+            <OfficialsList 
+              officials={officialsData.officials}
+              onSelectOfficial={handleSelectOfficial}
+            />
+          )
         ) : (
-          <StaticMapSelector 
-            selectedRegion={selectedRegion} 
-            onRegionSelect={setSelectedRegion} 
-          />
-        )}
+          <>
+            {/* Region Selector */}
+            <StaticMapSelector 
+              selectedRegion={selectedRegion} 
+              onRegionSelect={setSelectedRegion} 
+            />
+
+            {/* Historical Period Selector */}
+            {selectedRegion === 'gyeonggi' && (
+              <div className="mb-6 flex justify-center">
+                <div className="bg-white rounded-lg border border-gray-200 p-1 flex gap-1">
+                  <button
+                    onClick={() => setSelectedPeriod('current')}
+                    className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
+                      selectedPeriod === 'current'
+                        ? 'bg-blue-500 text-white shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                    }`}
+                  >
+                    현재 (김동연)
+                  </button>
+                  <button
+                    onClick={() => setSelectedPeriod('historical')}
+                    className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
+                      selectedPeriod === 'historical'
+                        ? 'bg-blue-500 text-white shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                    }`}
+                  >
+                    이전 (이재명)
+                  </button>
+                </div>
+              </div>
+            )}
 
         {currentRegion && (
           <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h2 className="text-xl font-bold text-blue-900 mb-2">
               {currentRegion.name} 공약 현황
+              {selectedRegion === 'gyeonggi' && selectedPeriod === 'historical' && (
+                <span className="text-sm font-normal text-blue-700 ml-2">(이재명 시기)</span>
+              )}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
                 <span className="font-medium text-gray-700">단체장:</span>{' '}
-                <span className="text-gray-900">{currentRegion.leader}</span>
+                <span className="text-gray-900">{getCurrentOfficialInfo().leader}</span>
               </div>
               <div>
                 <span className="font-medium text-gray-700">소속정당:</span>{' '}
-                <span className={currentRegion.party === '국민의힘' ? 'text-red-600' : 'text-blue-600'}>
-                  {currentRegion.party}
+                <span className={getCurrentOfficialInfo().party === '국민의힘' ? 'text-red-600' : 'text-blue-600'}>
+                  {getCurrentOfficialInfo().party}
                 </span>
               </div>
               <div>
                 <span className="font-medium text-gray-700">임기:</span>{' '}
-                <span className="text-gray-900">{currentRegion.term}</span>
+                <span className="text-gray-900">{getCurrentOfficialInfo().term}</span>
               </div>
               <div>
                 <span className="font-medium text-gray-700">인구:</span>{' '}
@@ -162,6 +240,8 @@ function App() {
               <PromiseCard key={promise.id} promise={promise} />
             ))}
           </div>
+        )}
+          </>
         )}
       </main>
 

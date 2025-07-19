@@ -5,9 +5,11 @@
       "title": "250만호 주택 공급",
       "category": "부동산정책",
       "level": "national",
+      "officialId": "president-yoon",
+      "officialName": "윤석열",
       "description": "5년간 250만호 이상 주택 공급으로 주택 시장 안정화",
       "status": "진행중",
-      "progress": 35,
+      "progress": 42,
       "startDate": "2022-05-10",
       "targetDate": "2027-05-09",
       "applicableRegions": ["seoul", "busan", "incheon", "gyeonggi"],
@@ -29,6 +31,8 @@
       "title": "부모급여 확대",
       "category": "복지정책",
       "level": "national",
+      "officialId": "president-yoon",
+      "officialName": "윤석열",
       "description": "0-1세 부모급여를 월 100만원으로 확대",
       "status": "달성",
       "progress": 100,
@@ -53,9 +57,11 @@
       "title": "디지털플랫폼정부 구현",
       "category": "디지털정책",
       "level": "national",
+      "officialId": "president-yoon",
+      "officialName": "윤석열",
       "description": "모든 행정서비스를 하나의 앱으로 이용 가능한 디지털정부 구축",
       "status": "진행중",
-      "progress": 45,
+      "progress": 55,
       "startDate": "2022-05-10",
       "targetDate": "2027-05-09",
       "applicableRegions": ["all"],
@@ -77,9 +83,11 @@
       "title": "병사 월급 200만원",
       "category": "국방정책",
       "level": "national",
+      "officialId": "president-yoon",
+      "officialName": "윤석열",
       "description": "병사 월급을 2025년까지 200만원으로 인상",
       "status": "진행중",
-      "progress": 60,
+      "progress": 75,
       "startDate": "2022-05-10",
       "targetDate": "2025-12-31",
       "applicableRegions": ["all"],
@@ -101,6 +109,8 @@
       "title": "대입 정시 50% 확대",
       "category": "교육정책",
       "level": "national",
+      "officialId": "president-yoon",
+      "officialName": "윤석열",
       "description": "주요 대학 정시모집 비율을 50%까지 확대",
       "status": "부분달성",
       "progress": 70,
@@ -127,6 +137,8 @@
       "title": "상생주택 7만호 공급",
       "category": "주거정책",
       "level": "local",
+      "officialId": "mayor-oh-seoul",
+      "officialName": "오세훈",
       "description": "주거취약계층을 위한 상생주택 7만호 공급",
       "status": "진행중",
       "progress": 25,
@@ -150,6 +162,8 @@
       "title": "GTX-A 노선 개통",
       "category": "교통정책",
       "level": "local",
+      "officialId": "mayor-oh-seoul",
+      "officialName": "오세훈",
       "description": "수도권 광역급행철도 GTX-A 노선 완공 및 개통",
       "status": "진행중",
       "progress": 75,
@@ -173,6 +187,8 @@
       "title": "중곡 의료안심주택단지 조성",
       "category": "복지정책",
       "level": "local",
+      "officialId": "mayor-oh-seoul",
+      "officialName": "오세훈",
       "description": "의료시설과 연계한 노인 안심주택단지 조성",
       "status": "진행중",
       "progress": 30,
@@ -196,6 +212,8 @@
       "title": "동행·매력 특별시 프로젝트",
       "category": "도시재생",
       "level": "local",
+      "officialId": "mayor-oh-seoul",
+      "officialName": "오세훈",
       "description": "시민과 함께하는 매력적인 도시공간 조성",
       "status": "진행중",
       "progress": 40,
@@ -219,6 +237,8 @@
       "title": "따릉이 10만대 확대",
       "category": "교통정책",
       "level": "local",
+      "officialId": "mayor-oh-seoul",
+      "officialName": "오세훈",
       "description": "공공자전거 따릉이를 10만대까지 확대",
       "status": "진행중",
       "progress": 55,
@@ -244,6 +264,8 @@
       "title": "2030 세계박람회 유치",
       "category": "국제행사",
       "level": "local",
+      "officialId": "mayor-park-busan",
+      "officialName": "박형준",
       "description": "2030 부산세계박람회 유치 및 인프라 구축",
       "status": "미달성",
       "progress": 0,
@@ -267,6 +289,8 @@
       "title": "부산신항 확장",
       "category": "항만정책",
       "level": "local",
+      "officialId": "mayor-park-busan",
+      "officialName": "박형준",
       "description": "부산신항 2-5, 2-6단계 확장 사업",
       "status": "진행중",
       "progress": 45,
@@ -290,6 +314,8 @@
       "title": "해운대 재개발",
       "category": "도시재생",
       "level": "local",
+      "officialId": "mayor-park-busan",
+      "officialName": "박형준",
       "description": "해운대 일대 도시재생 및 관광인프라 개선",
       "status": "진행중",
       "progress": 35,
@@ -312,10 +338,12 @@
   "gyeonggi": [
     {
       "id": "gyeonggi-001",
-      "title": "경기도 기본소득",
+      "title": "경기도 기본소듍",
       "category": "복지정책",
       "level": "local",
-      "description": "전 도민 대상 기본소득 도입",
+      "officialId": "governor-kim-gyeonggi",
+      "officialName": "김동연",
+      "description": "전 도민 대상 기본소듍 도입",
       "status": "중단",
       "progress": 10,
       "startDate": "2022-07-01",
@@ -338,6 +366,8 @@
       "title": "평택 브레인시티 조성",
       "category": "산업정책",
       "level": "local",
+      "officialId": "governor-kim-gyeonggi",
+      "officialName": "김동연",
       "description": "평택 고덕국제신도시 내 첨단산업단지 조성",
       "status": "진행중",
       "progress": 50,
@@ -361,6 +391,8 @@
       "title": "김포골드라인 연장",
       "category": "교통정책",
       "level": "local",
+      "officialId": "governor-kim-gyeonggi",
+      "officialName": "김동연",
       "description": "김포골드라인 서울 연장 및 증량",
       "status": "진행중",
       "progress": 20,
@@ -377,6 +409,133 @@
       "statistics": [
         { "label": "연장구간", "value": "6.5", "unit": "km" },
         { "label": "추가차량", "value": "20", "unit": "편성" }
+      ]
+    }
+  ],
+  "gyeonggi_historical": [
+    {
+      "id": "gyeonggi-lee-001",
+      "title": "경기도 기본소득 도입",
+      "category": "복지정책",
+      "level": "local",
+      "officialId": "governor-lee-gyeonggi",
+      "officialName": "이재명",
+      "description": "전국 최초 경기도 청년기본소득 및 농민기본소득 도입",
+      "status": "달성",
+      "progress": 100,
+      "startDate": "2018-07-01",
+      "targetDate": "2019-12-31",
+      "relatedArticles": [
+        {
+          "title": "경기도 청년기본소득 전국 첫 도입",
+          "url": "#",
+          "date": "2019-04-01",
+          "source": "경기도"
+        }
+      ],
+      "statistics": [
+        { "label": "수혜 청년", "value": "175,000", "unit": "명" },
+        { "label": "월 지급액", "value": "25", "unit": "만원" }
+      ]
+    },
+    {
+      "id": "gyeonggi-lee-002",
+      "title": "경기도 재난기본소득",
+      "category": "복지정책",
+      "level": "local",
+      "officialId": "governor-lee-gyeonggi",
+      "officialName": "이재명",
+      "description": "코로나19 대응 전국 최초 재난기본소득 지급",
+      "status": "달성",
+      "progress": 100,
+      "startDate": "2020-03-01",
+      "targetDate": "2020-05-31",
+      "relatedArticles": [
+        {
+          "title": "경기도 재난기본소득 1인 10만원 지급",
+          "url": "#",
+          "date": "2020-03-31",
+          "source": "경기도"
+        }
+      ],
+      "statistics": [
+        { "label": "지급 대상", "value": "13,300,000", "unit": "명" },
+        { "label": "총 지급액", "value": "1,330", "unit": "억원" }
+      ]
+    },
+    {
+      "id": "gyeonggi-lee-003",
+      "title": "경기도 공공기관 정규직 전환",
+      "category": "노동정책",
+      "level": "local",
+      "officialId": "governor-lee-gyeonggi",
+      "officialName": "이재명",
+      "description": "경기도 산하 공공기관 비정규직의 정규직 전환",
+      "status": "달성",
+      "progress": 100,
+      "startDate": "2018-07-01",
+      "targetDate": "2021-12-31",
+      "relatedArticles": [
+        {
+          "title": "경기도 공공기관 비정규직 정규직 전환 완료",
+          "url": "#",
+          "date": "2021-12-31",
+          "source": "경기도"
+        }
+      ],
+      "statistics": [
+        { "label": "전환 인원", "value": "15,000", "unit": "명" },
+        { "label": "전환율", "value": "95", "unit": "%" }
+      ]
+    },
+    {
+      "id": "gyeonggi-lee-004",
+      "title": "경기도 무상교복 확대",
+      "category": "교육정책",
+      "level": "local",
+      "officialId": "governor-lee-gyeonggi",
+      "officialName": "이재명",
+      "description": "도내 중고등학생 무상교복 지원 확대",
+      "status": "달성",
+      "progress": 100,
+      "startDate": "2019-01-01",
+      "targetDate": "2022-06-30",
+      "relatedArticles": [
+        {
+          "title": "경기도 무상교복 지원 확대",
+          "url": "#",
+          "date": "2019-03-01",
+          "source": "경기도교육청"
+        }
+      ],
+      "statistics": [
+        { "label": "지원 학생", "value": "420,000", "unit": "명" },
+        { "label": "연간 예산", "value": "350", "unit": "억원" }
+      ]
+    },
+    {
+      "id": "gyeonggi-lee-005",
+      "title": "GTX 경기구간 추진",
+      "category": "교통정책",
+      "level": "local",
+      "officialId": "governor-lee-gyeonggi",
+      "officialName": "이재명",
+      "description": "수도권 광역급행철도 GTX 경기도 구간 추진",
+      "status": "부분달성",
+      "progress": 70,
+      "startDate": "2018-07-01",
+      "targetDate": "2022-06-30",
+      "relatedArticles": [
+        {
+          "title": "GTX-A 경기구간 착공",
+          "url": "#",
+          "date": "2020-06-15",
+          "source": "국토교통부"
+        }
+      ],
+      "statistics": [
+        { "label": "추진 노선", "value": "3", "unit": "개" },
+        { "label": "경기구간", "value": "120", "unit": "km" }
       ]
     }
   ]

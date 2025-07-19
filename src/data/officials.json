@@ -1,0 +1,92 @@
+{
+  "officials": [
+    {
+      "id": "president-yoon",
+      "name": "윤석열",
+      "position": "대한민국 대통령",
+      "party": "국민의힘",
+      "term": "2022.05.10 ~ 2027.05.09",
+      "profileImage": "/images/officials/yoon-suk-yeol.jpg",
+      "level": "national",
+      "promiseIds": ["nat-001", "nat-002", "nat-003", "nat-004", "nat-005"],
+      "totalPromises": 120,
+      "completedPromises": 25,
+      "inProgressPromises": 75,
+      "failedPromises": 20
+    },
+    {
+      "id": "president-moon",
+      "name": "문재인",
+      "position": "대한민국 대통령 (전)",
+      "party": "더불어민주당",
+      "term": "2017.05.10 ~ 2022.05.09",
+      "profileImage": "/images/officials/moon-jae-in.jpg",
+      "level": "national",
+      "promiseIds": [],
+      "totalPromises": 100,
+      "completedPromises": 45,
+      "inProgressPromises": 30,
+      "failedPromises": 25
+    },
+    {
+      "id": "mayor-oh-seoul",
+      "name": "오세훈",
+      "position": "서울특별시장",
+      "party": "국민의힘",
+      "term": "2021.04.08 ~ 2026.06.30",
+      "profileImage": "/images/officials/oh-se-hoon.jpg",
+      "level": "local",
+      "region": "seoul",
+      "promiseIds": ["seoul-001", "seoul-002", "seoul-003", "seoul-004", "seoul-005"],
+      "totalPromises": 62,
+      "completedPromises": 8,
+      "inProgressPromises": 42,
+      "failedPromises": 12
+    },
+    {
+      "id": "mayor-park-busan",
+      "name": "박형준",
+      "position": "부산광역시장",
+      "party": "국민의힘",
+      "term": "2021.04.08 ~ 2026.06.30",
+      "profileImage": "/images/officials/park-hyung-joon.jpg",
+      "level": "local",
+      "region": "busan",
+      "promiseIds": ["busan-001", "busan-002", "busan-003"],
+      "totalPromises": 45,
+      "completedPromises": 5,
+      "inProgressPromises": 35,
+      "failedPromises": 5
+    },
+    {
+      "id": "governor-kim-gyeonggi",
+      "name": "김동연",
+      "position": "경기도지사",
+      "party": "더불어민주당",
+      "term": "2022.07.01 ~ 2026.06.30",
+      "profileImage": "/images/officials/kim-dong-yeon.jpg",
+      "level": "local",
+      "region": "gyeonggi",
+      "promiseIds": ["gyeonggi-001", "gyeonggi-002", "gyeonggi-003"],
+      "totalPromises": 50,
+      "completedPromises": 3,
+      "inProgressPromises": 40,
+      "failedPromises": 7
+    },
+    {
+      "id": "governor-lee-gyeonggi",
+      "name": "이재명",
+      "position": "경기도지사 (전)",
+      "party": "더불어민주당",
+      "term": "2018.07.01 ~ 2022.06.30",
+      "profileImage": "/images/officials/lee-jae-myung.jpg",
+      "level": "local",
+      "region": "gyeonggi",
+      "promiseIds": ["gyeonggi-lee-001", "gyeonggi-lee-002", "gyeonggi-lee-003", "gyeonggi-lee-004", "gyeonggi-lee-005"],
+      "totalPromises": 85,
+      "completedPromises": 52,
+      "inProgressPromises": 25,
+      "failedPromises": 8
+    }
+  ]
+}
