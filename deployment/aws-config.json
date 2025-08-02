@@ -1,0 +1,140 @@
+{
+  "name": "korea-promise-tracker",
+  "description": "Korean Promise Tracker - Production AWS Configuration",
+  "version": "1.0.0",
+  "aws": {
+    "region": "ap-northeast-2",
+    "s3": {
+      "bucket": "korea-promise-tracker-prod",
+      "hosting": true,
+      "compression": {
+        "gzip": true,
+        "brotli": true
+      },
+      "caching": {
+        "static": "max-age=31536000",
+        "html": "max-age=3600",
+        "json": "max-age=86400"
+      }
+    },
+    "cloudfront": {
+      "distribution": true,
+      "compress": true,
+      "viewerProtocolPolicy": "redirect-to-https",
+      "defaultCacheBehavior": {
+        "targetOriginId": "S3-Origin",
+        "viewerProtocolPolicy": "redirect-to-https",
+        "allowedMethods": ["GET", "HEAD"],
+        "compress": true,
+        "defaultTTL": 86400,
+        "maxTTL": 31536000
+      },
+      "customErrorPages": [
+        {
+          "errorCode": 404,
+          "responseCode": 200,
+          "responsePage": "/index.html",
+          "errorCachingMinTTL": 300
+        },
+        {
+          "errorCode": 403,
+          "responseCode": 200,
+          "responsePage": "/index.html",
+          "errorCachingMinTTL": 300
+        }
+      ]
+    },
+    "route53": {
+      "domain": "promise-tracker.kr",
+      "hostedZone": true,
+      "recordSets": [
+        {
+          "name": "www.promise-tracker.kr",
+          "type": "CNAME",
+          "target": "cloudfront-distribution"
+        },
+        {
+          "name": "promise-tracker.kr",
+          "type": "A",
+          "alias": "cloudfront-distribution"
+        }
+      ]
+    },
+    "acm": {
+      "certificate": {
+        "domain": "promise-tracker.kr",
+        "subjectAlternativeNames": ["www.promise-tracker.kr"],
+        "validation": "DNS"
+      }
+    }
+  },
+  "firebase": {
+    "projectId": "korea-promise-tracker",
+    "functions": {
+      "region": "asia-northeast1",
+      "node": "18"
+    },
+    "firestore": {
+      "rules": "firestore.rules",
+      "indexes": "firestore.indexes.json"
+    },
+    "storage": {
+      "rules": "storage.rules"
+    }
+  },
+  "performance": {
+    "bundleSize": {
+      "maxSize": "800KB",
+      "warnings": {
+        "js": "500KB",
+        "css": "100KB",
+        "images": "200KB"
+      }
+    },
+    "lighthouse": {
+      "performance": 90,
+      "accessibility": 95,
+      "bestPractices": 90,
+      "seo": 95
+    },
+    "webVitals": {
+      "lcp": "2.5s",
+      "fid": "100ms",
+      "cls": "0.1"
+    }
+  },
+  "security": {
+    "headers": {
+      "contentSecurityPolicy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com;",
+      "strictTransportSecurity": "max-age=31536000; includeSubDomains",
+      "xFrameOptions": "DENY",
+      "xContentTypeOptions": "nosniff",
+      "referrerPolicy": "strict-origin-when-cross-origin"
+    },
+    "monitoring": {
+      "enabled": true,
+      "alerts": {
+        "errorRate": "5%",
+        "responseTime": "3s",
+        "availability": "99.9%"
+      }
+    }
+  },
+  "monitoring": {
+    "analytics": {
+      "googleAnalytics": "G-XXXXXXXXXX",
+      "customEvents": [
+        "promise_view",
+        "promise_share", 
+        "promise_bookmark",
+        "region_select",
+        "filter_apply"
+      ]
+    },
+    "performance": {
+      "webVitals": true,
+      "bundleAnalysis": true,
+      "errorTracking": true
+    }
+  }
+}

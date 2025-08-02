@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, User, TrendingUp, CheckCircle, XCircle, Clock, Calendar, Filter } from 'lucide-react';
+import { ArrowLeft, User, CheckCircle, XCircle, Clock, Calendar, Filter } from 'lucide-react';
 import PromiseCard from './PromiseCard';
 import { filterPromises, sortPromisesByStatus } from '../utils/helpers';
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import { regions } from '../data/regions';
 import { ArrowLeft } from 'lucide-react';
 
@@ -33,12 +34,25 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
   useEffect(() => {
     // Load SVG content
     fetch('/korea-map.svg')
-      .then(response => response.text())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+      })
       .then(content => {
-        setSvgContent(content);
+        // Sanitize SVG content to prevent XSS attacks
+        const sanitizedContent = DOMPurify.sanitize(content, {
+          USE_PROFILES: { svg: true, svgFilters: true },
+          ADD_TAGS: ['use'],
+          ADD_ATTR: ['viewBox', 'preserveAspectRatio']
+        });
+        setSvgContent(sanitizedContent);
       })
       .catch(error => {
         console.error('Error loading SVG map:', error);
+        // Set empty content on error to prevent broken UI
+        setSvgContent('');
       });
   }, []);
 

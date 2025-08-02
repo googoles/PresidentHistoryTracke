@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, TrendingUp, CheckCircle, XCircle, Clock, ChevronRight } from 'lucide-react';
+import { User, CheckCircle, XCircle, Clock, ChevronRight } from 'lucide-react';
 
 const OfficialsList = ({ officials, onSelectOfficial }) => {
   const [selectedLevel, setSelectedLevel] = useState('all');

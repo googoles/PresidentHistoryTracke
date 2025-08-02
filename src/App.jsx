@@ -6,10 +6,12 @@ import StatsOverview from './components/StatsOverview';
 import OfficialsList from './components/OfficialsList';
 import OfficialDetail from './components/OfficialDetail';
 import DarkModeToggle from './components/DarkModeToggle';
+import NotificationSystem, { showShareNotification, showBookmarkNotification } from './components/NotificationSystem';
 import { promises } from './data/promises';
 import { regions } from './data/regions';
 import officialsData from './data/officials.json';
 import { filterPromises, getPromisesByRegion, sortPromisesByStatus } from './utils/helpers';
+import { usePromiseActions } from './hooks/usePromiseActions';
 import { Building2, Map, Users } from 'lucide-react';
 
 function App() {
@@ -41,6 +43,28 @@ function App() {
   }, [regionPromises, selectedLevel, selectedCategory, selectedStatus, searchTerm]);
 
   const currentRegion = regions[selectedRegion];
+  
+  // Use the promise actions hook for sharing and bookmarking
+  const { toggleBookmark, isBookmarked, sharePromise } = usePromiseActions();
+  
+  // Handle promise sharing
+  const handlePromiseShare = async (promise) => {
+    try {
+      const result = await sharePromise(promise);
+      if (result.success) {
+        showShareNotification(result.method);
+      }
+    } catch (error) {
+      console.error('Failed to share promise:', error);
+    }
+  };
+  
+  // Handle promise bookmarking
+  const handlePromiseBookmark = (promise) => {
+    const wasBookmarked = isBookmarked(promise.id);
+    toggleBookmark(promise);
+    showBookmarkNotification(!wasBookmarked, promise.title);
+  };
   
   const getCurrentOfficialInfo = () => {
     if (selectedRegion === 'gyeonggi' && selectedPeriod === 'historical') {
@@ -244,7 +268,13 @@ function App() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {filteredPromises.map((promise) => (
-              <PromiseCard key={promise.id} promise={promise} />
+              <PromiseCard 
+                key={promise.id} 
+                promise={promise}
+                onShare={handlePromiseShare}
+                onBookmark={handlePromiseBookmark}
+                isBookmarked={isBookmarked(promise.id)}
+              />
             ))}
           </div>
         )}
@@ -264,6 +294,9 @@ function App() {
           </div>
         </div>
       </footer>
+      
+      {/* Notification System */}
+      <NotificationSystem />
     </div>
   );
 }
