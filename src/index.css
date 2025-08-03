@@ -26,3 +26,57 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* PWA Animations */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
+}
+
+/* PWA Install Banner Styles */
+.pwa-install-banner {
+  @apply fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4 z-50;
+}
+
+.pwa-update-banner {
+  @apply fixed top-0 left-0 right-0 bg-white shadow-lg border-b border-gray-200 p-4 z-50;
+}
+
+/* Offline indicator pulse animation */
+@keyframes pulse-amber {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse-amber {
+  animation: pulse-amber 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import StaticMapSelector from './components/StaticMapSelector';
 import PromiseCard from './components/PromiseCard';
 import FilterPanel from './components/FilterPanel';
@@ -7,15 +7,31 @@ import OfficialsList from './components/OfficialsList';
 import OfficialDetail from './components/OfficialDetail';
 import DarkModeToggle from './components/DarkModeToggle';
 import NotificationSystem, { showShareNotification, showBookmarkNotification } from './components/NotificationSystem';
+import NotificationCenter from './components/notifications/NotificationCenter';
+import SubscriptionManager from './components/notifications/SubscriptionManager';
+import NotificationPreferences from './components/notifications/NotificationPreferences';
+import AuthButton from './components/auth/AuthButton';
+import AnalyticsDashboard from './components/analytics/AnalyticsDashboard';
+import InstallPrompt from './components/pwa/InstallPrompt';
+import UpdatePrompt from './components/pwa/UpdatePrompt';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './hooks/useAuth';
+import useRealtime from './hooks/useRealtime';
+import { testSupabaseConnection } from './utils/supabase';
+import { connectionUtils, notificationHelpers } from './utils/database';
+import { notificationService } from './services/notificationService';
+import offlineService from './services/offlineService';
 import { promises } from './data/promises';
 import { regions } from './data/regions';
 import officialsData from './data/officials.json';
 import { filterPromises, getPromisesByRegion, sortPromisesByStatus } from './utils/helpers';
 import { usePromiseActions } from './hooks/usePromiseActions';
-import { Building2, Map, Users } from 'lucide-react';
+import { Building2, Map, Users, AlertTriangle, Bell, Settings, Wifi, WifiOff, BarChart3, Download } from 'lucide-react';
 
-function App() {
+function AppContent() {
+  const { user } = useAuth();
   const [selectedRegion, setSelectedRegion] = useState('seoul');
+  const [supabaseStatus, setSupabaseStatus] = useState({ connected: null, error: null });
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -23,6 +39,145 @@ function App() {
   const [mainView, setMainView] = useState('regions'); // 'regions' or 'officials'
   const [selectedOfficial, setSelectedOfficial] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('current'); // 'current' or 'historical'
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  
+  // Notification states
+  const [showNotificationCenter, setShowNotificationCenter] = useState(false);
+  const [showSubscriptionManager, setShowSubscriptionManager] = useState(false);
+  const [showNotificationPreferences, setShowNotificationPreferences] = useState(false);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const [connectionStatus, setConnectionStatus] = useState('connecting');
+  
+  // PWA states
+  const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
+  const [serviceWorkerRegistration, setServiceWorkerRegistration] = useState(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [pendingOfflineCount, setPendingOfflineCount] = useState(0);
+  
+  // Real-time hooks
+  const realtime = useRealtime();
+  
+  // Listen for service worker updates
+  useEffect(() => {
+    const handleSwUpdate = (event) => {
+      setServiceWorkerRegistration(event.detail);
+      setShowUpdatePrompt(true);
+    };
+    
+    window.addEventListener('sw-update', handleSwUpdate);
+    
+    return () => {
+      window.removeEventListener('sw-update', handleSwUpdate);
+    };
+  }, []);
+
+  // Test Supabase connection and initialize real-time features
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const result = await testSupabaseConnection();
+        setSupabaseStatus({ 
+          connected: result.success, 
+          error: result.success ? null : result.error 
+        });
+        
+        if (result.success) {
+          // Initialize notification service
+          await notificationService.initialize();
+          
+          // Monitor connection status
+          const cleanup = connectionUtils.monitorConnection((status) => {
+            setConnectionStatus(status);
+          });
+          
+          return cleanup;
+        }
+      } catch (error) {
+        setSupabaseStatus({ 
+          connected: false, 
+          error: 'Connection test failed' 
+        });
+        setConnectionStatus('error');
+      }
+    };
+    
+    checkConnection();
+  }, []);
+
+  // Initialize PWA features
+  useEffect(() => {
+    // Monitor online/offline status
+    const handleOnline = () => {
+      setIsOffline(false);
+      setConnectionStatus('connected');
+    };
+    
+    const handleOffline = () => {
+      setIsOffline(true);
+      setConnectionStatus('error');
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Check for pending offline actions
+    const checkPendingActions = async () => {
+      const count = await offlineService.getPendingCount();
+      setPendingOfflineCount(count);
+    };
+    
+    checkPendingActions();
+    
+    // Cache promises data for offline access
+    const cachePromisesData = async () => {
+      const allPromisesData = [];
+      Object.entries(promises).forEach(([region, regionPromises]) => {
+        if (Array.isArray(regionPromises)) {
+          regionPromises.forEach(promise => {
+            allPromisesData.push({ ...promise, region });
+          });
+        }
+      });
+      await offlineService.cachePromises(allPromisesData);
+    };
+    
+    cachePromisesData();
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Load unread notification count for authenticated users
+  useEffect(() => {
+    if (user?.id) {
+      const loadUnreadCount = async () => {
+        try {
+          const count = await notificationHelpers.getUnreadCount(user.id);
+          setUnreadNotificationCount(count);
+        } catch (error) {
+          console.error('Failed to load unread notification count:', error);
+        }
+      };
+      
+      loadUnreadCount();
+      
+      // Set up real-time subscription for new notifications
+      const unsubscribe = realtime.subscribe(
+        `user-notifications-${user.id}`,
+        () => realtime.subscribeToUserNotifications?.(user.id, (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setUnreadNotificationCount(prev => prev + 1);
+          }
+        })
+      );
+      
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [user?.id, realtime]);
 
   const regionPromises = useMemo(() => {
     if (selectedPeriod === 'historical' && selectedRegion === 'gyeonggi') {
@@ -107,14 +262,70 @@ function App() {
                   <p className="text-sm text-gray-600 dark:text-slate-300">대통령 및 지자체장 공약 이행 현황</p>
                 </div>
               </div>
-              <DarkModeToggle />
+              <div className="flex items-center gap-3">
+                {/* Connection status indicator */}
+                <div className="flex items-center gap-2">
+                  {connectionStatus === 'connected' ? (
+                    <Wifi className="w-4 h-4 text-green-500" title="실시간 연결됨" />
+                  ) : connectionStatus === 'connecting' ? (
+                    <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" title="연결 중..." />
+                  ) : (
+                    <WifiOff className="w-4 h-4 text-red-500" title="연결 끊김" />
+                  )}
+                  {pendingOfflineCount > 0 && (
+                    <span className="text-xs text-amber-600 dark:text-amber-400 font-medium" title="오프라인 대기 중인 작업">
+                      ({pendingOfflineCount}개 대기중)
+                    </span>
+                  )}
+                </div>
+                
+                {/* Notification center button - only show if user is authenticated */}
+                {user && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowNotificationCenter(true)}
+                      className="relative p-2 text-gray-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      title="알림 센터"
+                    >
+                      <Bell className="w-5 h-5" />
+                      {unreadNotificationCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                )}
+                
+                {/* Subscription manager button - only show if user is authenticated */}
+                {user && (
+                  <button
+                    onClick={() => setShowSubscriptionManager(true)}
+                    className="p-2 text-gray-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    title="구독 관리"
+                  >
+                    <Settings className="w-5 h-5" />
+                  </button>
+                )}
+                
+                <AuthButton />
+                <DarkModeToggle />
+              </div>
             </div>
           </div>
-          <div className="text-center py-2 text-xs">
-            <span className="text-gray-500 dark:text-slate-300">
-              Background should change in dark mode
-            </span>
-          </div>
+          {/* Supabase Connection Status */}
+          {supabaseStatus.connected === false && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800 py-2">
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-center text-sm">
+                  <AlertTriangle className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mr-2" />
+                  <span className="text-yellow-800 dark:text-yellow-200">
+                    데이터베이스 연결 실패: {supabaseStatus.error} (일부 기능이 제한될 수 있습니다)
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </header>
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -125,9 +336,10 @@ function App() {
               onClick={() => {
                 setMainView('regions');
                 setSelectedOfficial(null);
+                setShowAnalytics(false);
               }}
               className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
-                mainView === 'regions'
+                mainView === 'regions' && !showAnalytics
                   ? 'bg-blue-500 text-white shadow-sm'
                   : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
               }`}
@@ -136,9 +348,12 @@ function App() {
               지역별 공약
             </button>
             <button
-              onClick={() => setMainView('officials')}
+              onClick={() => {
+                setMainView('officials');
+                setShowAnalytics(false);
+              }}
               className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
-                mainView === 'officials'
+                mainView === 'officials' && !showAnalytics
                   ? 'bg-blue-500 text-white shadow-sm'
                   : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
               }`}
@@ -146,10 +361,26 @@ function App() {
               <Users className="w-4 h-4 mr-2 flex-shrink-0" />
               인물별 공약
             </button>
+            <button
+              onClick={() => {
+                setShowAnalytics(true);
+                setSelectedOfficial(null);
+              }}
+              className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
+                showAnalytics
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 mr-2 flex-shrink-0" />
+              분석 대시보드
+            </button>
           </div>
         </div>
 
-        {mainView === 'officials' ? (
+        {showAnalytics ? (
+          <AnalyticsDashboard />
+        ) : mainView === 'officials' ? (
           selectedOfficial ? (
             <OfficialDetail 
               official={selectedOfficial}
@@ -297,7 +528,87 @@ function App() {
       
       {/* Notification System */}
       <NotificationSystem />
+      
+      {/* Notification Center */}
+      <NotificationCenter 
+        isOpen={showNotificationCenter}
+        onClose={() => setShowNotificationCenter(false)}
+        onOpenPreferences={() => {
+          setShowNotificationCenter(false);
+          setShowNotificationPreferences(true);
+        }}
+      />
+      
+      {/* Subscription Manager */}
+      <SubscriptionManager 
+        isOpen={showSubscriptionManager}
+        onClose={() => setShowSubscriptionManager(false)}
+      />
+      
+      {/* Notification Preferences */}
+      <NotificationPreferences 
+        isOpen={showNotificationPreferences}
+        onClose={() => setShowNotificationPreferences(false)}
+      />
+      
+      {/* PWA Install Prompt */}
+      <InstallPrompt />
+      
+      {/* PWA Update Prompt */}
+      {showUpdatePrompt && serviceWorkerRegistration && (
+        <UpdatePrompt 
+          onUpdate={() => {
+            if (serviceWorkerRegistration.waiting) {
+              serviceWorkerRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+              serviceWorkerRegistration.waiting.addEventListener('statechange', e => {
+                if (e.target.state === 'activated') {
+                  window.location.reload();
+                }
+              });
+            }
+            setShowUpdatePrompt(false);
+          }}
+          onDismiss={() => setShowUpdatePrompt(false)}
+        />
+      )}
+      
+      {/* Offline indicator */}
+      {isOffline && (
+        <div className="fixed bottom-4 left-4 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 z-40">
+          <WifiOff className="w-4 h-4" />
+          <span className="text-sm font-medium">오프라인 모드 - 일부 기능이 제한됩니다</span>
+        </div>
+      )}
     </div>
+  );
+}
+
+// Main App component with AuthProvider
+function App() {
+  useEffect(() => {
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      import('./utils/serviceWorkerRegistration').then(({ register }) => {
+        register({
+          onUpdate: (registration) => {
+            // Store registration for later use
+            window.swRegistration = registration;
+            // Show update prompt
+            const event = new CustomEvent('sw-update', { detail: registration });
+            window.dispatchEvent(event);
+          },
+          onSuccess: (registration) => {
+            console.log('Service Worker registered successfully:', registration);
+          }
+        });
+      });
+    }
+  }, []);
+
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

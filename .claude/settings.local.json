@@ -18,7 +18,8 @@
       "Bash(npm install:*)",
       "Bash(npx eslint:*)",
       "Bash(timeout 120s npm run build)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }

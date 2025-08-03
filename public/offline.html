@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오프라인 - 공약 추적 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .offline-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            background: #e5e7eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .offline-icon svg {
+            width: 60px;
+            height: 60px;
+            fill: #6b7280;
+        }
+        
+        h1 {
+            color: #1f2937;
+            font-size: 24px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        p {
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        
+        .retry-button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .retry-button:hover {
+            background-color: #2563eb;
+        }
+        
+        .cached-info {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .cached-info h2 {
+            font-size: 18px;
+            color: #374151;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .cached-list {
+            list-style: none;
+            text-align: left;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .cached-list li {
+            padding: 8px 0;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+        }
+        
+        .cached-list li:before {
+            content: "✓";
+            color: #10b981;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M5.636 5.636a9 9 0 000 12.728m0 0l2.829-2.829m-2.829 2.829L3 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13 11a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        </div>
+        
+        <h1>인터넷 연결이 없습니다</h1>
+        <p>현재 오프라인 상태입니다. 인터넷 연결을 확인하고 다시 시도해주세요.</p>
+        
+        <button class="retry-button" onclick="window.location.reload()">
+            다시 시도
+        </button>
+        
+        <div class="cached-info">
+            <h2>오프라인에서 사용 가능한 기능</h2>
+            <ul class="cached-list">
+                <li>이전에 방문한 공약 목록 보기</li>
+                <li>캐시된 지역 정보 확인</li>
+                <li>저장된 통계 데이터 열람</li>
+                <li>오프라인 평가 및 댓글 작성</li>
+            </ul>
+            <p style="margin-top: 16px; font-size: 14px; color: #9ca3af;">
+                온라인 연결이 복구되면 오프라인에서 작성한 내용이 자동으로 동기화됩니다.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Check for online status periodically
+        setInterval(() => {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }, 5000);
+        
+        // Listen for online event
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>
