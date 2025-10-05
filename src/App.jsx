@@ -57,6 +57,14 @@ function App() {
     return promisesList;
   }, [promises]);
 
+  // Filter officials by selected region - BEFORE any conditional returns
+  const regionOfficials = useMemo(() => {
+    if (!selectedRegion || selectedRegion === 'national') {
+      return officials;
+    }
+    return officials.filter(official => official.region === selectedRegion);
+  }, [officials, selectedRegion]);
+
   // Show loading state
   if (promisesLoading || officialsLoading || regionsLoading) {
     return (
@@ -82,14 +90,6 @@ function App() {
   }
 
   const currentRegion = regions[selectedRegion];
-
-  // Filter officials by selected region
-  const regionOfficials = useMemo(() => {
-    if (!selectedRegion || selectedRegion === 'national') {
-      return officials;
-    }
-    return officials.filter(official => official.region === selectedRegion);
-  }, [officials, selectedRegion]);
 
   const handleSelectOfficial = (official) => {
     setSelectedOfficial(official);
