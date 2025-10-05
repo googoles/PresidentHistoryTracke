@@ -177,13 +177,6 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
               {regions[hoveredRegion].name}
             </h3>
             <div className="space-y-1 text-xs text-gray-600 dark:text-slate-300">
-              <p><span className="font-medium">단체장:</span> {regions[hoveredRegion].leader}</p>
-              <p>
-                <span className="font-medium">정당:</span>{' '}
-                <span className={regions[hoveredRegion].party === '국민의힘' ? 'text-red-600' : 'text-blue-600'}>
-                  {regions[hoveredRegion].party}
-                </span>
-              </p>
               <p><span className="font-medium">인구:</span> {regions[hoveredRegion].population}명</p>
             </div>
           </div>
