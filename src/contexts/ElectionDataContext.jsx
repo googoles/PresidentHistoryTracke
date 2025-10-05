@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { LocalDBDataSource } from '../services/LocalDBDataSource';
-// import { SupabaseDataSource } from '../services/SupabaseDataSource'; // 나중에 구현
+import { SupabaseDataSource } from '../services/SupabaseDataSource';
 
 /**
  * Election Data Context
@@ -29,15 +29,7 @@ export const ElectionDataProvider = ({ children }) => {
 
         if (useSupabase) {
           console.log('[ElectionData] Using Supabase data source');
-          // TODO: Supabase 구현 후 활성화
-          // const { createClient } = await import('@supabase/supabase-js');
-          // const supabaseClient = createClient(
-          //   process.env.REACT_APP_SUPABASE_URL,
-          //   process.env.REACT_APP_SUPABASE_ANON_KEY
-          // );
-          // source = new SupabaseDataSource(supabaseClient);
-          throw new Error('Supabase not yet implemented. Use Local DB for now.');
-
+          source = new SupabaseDataSource();
         } else {
           console.log('[ElectionData] Using Local DB data source');
           const dbPath = process.env.REACT_APP_LOCAL_DB_PATH || '/data/election_data.db';
