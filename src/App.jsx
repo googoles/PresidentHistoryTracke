@@ -93,6 +93,7 @@ function App() {
 
   const handleSelectOfficial = (official) => {
     setSelectedOfficial(official);
+    setMainView('officials'); // Switch to officials view
   };
 
   const handleBackToList = () => {
