@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import Map, { Marker, Popup } from 'react-map-gl';
-import { MapPin, Users, Building2 } from 'lucide-react';
+import { MapPin, Users, Building2, ChevronLeft } from 'lucide-react';
 import { regions } from '../data/regions';
+import districtsData from '../../public/districts.json';
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 
@@ -33,6 +34,9 @@ const MapRegionSelector = ({ selectedRegion, onRegionSelect }) => {
     zoom: 6.5
   });
   const [hoveredRegion, setHoveredRegion] = useState(null);
+  const [selectedRegionKey, setSelectedRegionKey] = useState(null);
+  const [showDistricts, setShowDistricts] = useState(false);
+  const [hoveredDistrict, setHoveredDistrict] = useState(null);
 
   const getRegionTypeIcon = (type) => {
     switch (type) {
@@ -52,7 +56,75 @@ const MapRegionSelector = ({ selectedRegion, onRegionSelect }) => {
     return '#10B981'; // emerald-500
   };
 
+  // Convert districts.json coordinates (0-100 scale) to actual lat/lng
+  const convertDistrictCoords = (regionKey, x, y) => {
+    const baseCoords = REGION_COORDINATES[regionKey];
+    if (!baseCoords) return null;
+
+    // Scale factor for district positioning (adjustable)
+    const latRange = 0.3;
+    const lngRange = 0.4;
+
+    // Convert x,y (0-100) to offset from center
+    const lngOffset = ((x - 50) / 100) * lngRange;
+    const latOffset = ((50 - y) / 100) * latRange; // Inverted because y increases downward
+
+    return {
+      lng: baseCoords.lng + lngOffset,
+      lat: baseCoords.lat + latOffset
+    };
+  };
+
+  const districtMarkers = useMemo(() => {
+    if (!showDistricts || !selectedRegionKey || !districtsData[selectedRegionKey]) {
+      return null;
+    }
+
+    const regionDistricts = districtsData[selectedRegionKey].districts;
+
+    return regionDistricts.map((district, index) => {
+      const coords = convertDistrictCoords(
+        selectedRegionKey,
+        district.position.x,
+        district.position.y
+      );
+
+      if (!coords) return null;
+
+      return (
+        <Marker
+          key={`district-${selectedRegionKey}-${index}`}
+          longitude={coords.lng}
+          latitude={coords.lat}
+          anchor="center"
+          onClick={(e) => {
+            e.originalEvent.stopPropagation();
+            // Handle district selection (you can add custom logic here)
+            console.log('Selected district:', district.name, 'in region:', selectedRegionKey);
+          }}
+        >
+          <div
+            className="cursor-pointer transition-all duration-200 hover:scale-125"
+            onMouseEnter={() => setHoveredDistrict({ ...district, regionKey: selectedRegionKey })}
+            onMouseLeave={() => setHoveredDistrict(null)}
+            style={{
+              width: '8px',
+              height: '8px',
+              backgroundColor: '#F59E0B', // amber-500
+              borderRadius: '50%',
+              border: '2px solid white',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.4)'
+            }}
+          />
+        </Marker>
+      );
+    }).filter(Boolean);
+  }, [showDistricts, selectedRegionKey]);
+
   const markers = useMemo(() => {
+    // Don't show region markers when viewing districts
+    if (showDistricts) return null;
+
     return Object.entries(regions)
       .filter(([key]) => key !== 'national')
       .map(([key, region]) => {
@@ -67,13 +139,25 @@ const MapRegionSelector = ({ selectedRegion, onRegionSelect }) => {
             anchor="center"
             onClick={(e) => {
               e.originalEvent.stopPropagation();
-              onRegionSelect(key);
-              setViewState(prev => ({
-                ...prev,
-                longitude: coords.lng,
-                latitude: coords.lat,
-                zoom: coords.zoom
-              }));
+
+              // Check if this region has districts
+              if (districtsData[key]) {
+                setSelectedRegionKey(key);
+                setShowDistricts(true);
+                setViewState({
+                  longitude: coords.lng,
+                  latitude: coords.lat,
+                  zoom: 12 // Zoom in for district view
+                });
+              } else {
+                onRegionSelect(key);
+                setViewState(prev => ({
+                  ...prev,
+                  longitude: coords.lng,
+                  latitude: coords.lat,
+                  zoom: coords.zoom
+                }));
+              }
             }}
           >
             <div
@@ -95,7 +179,7 @@ const MapRegionSelector = ({ selectedRegion, onRegionSelect }) => {
         );
       })
       .filter(Boolean);
-  }, [selectedRegion, onRegionSelect]);
+  }, [selectedRegion, onRegionSelect, showDistricts]);
 
   const handleRegionClick = (regionKey) => {
     onRegionSelect(regionKey);
@@ -163,19 +247,40 @@ const MapRegionSelector = ({ selectedRegion, onRegionSelect }) => {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">지역 선택</h2>
+        <h2 className="text-2xl font-bold text-gray-800">
+          {showDistricts ? `${districtsData[selectedRegionKey]?.name} 선거구` : '지역 선택'}
+        </h2>
         <div className="flex items-center space-x-4">
-          <button
-            onClick={() => handleRegionClick('national')}
-            className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-              selectedRegion === 'national'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <Building2 className="w-4 h-4 inline mr-2" />
-            전국
-          </button>
+          {showDistricts && (
+            <button
+              onClick={() => {
+                setShowDistricts(false);
+                setSelectedRegionKey(null);
+                setViewState({
+                  longitude: 127.7,
+                  latitude: 36.5,
+                  zoom: 6.5
+                });
+              }}
+              className="px-4 py-2 rounded-lg transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200"
+            >
+              <ChevronLeft className="w-4 h-4 inline mr-2" />
+              지역 목록으로
+            </button>
+          )}
+          {!showDistricts && (
+            <button
+              onClick={() => handleRegionClick('national')}
+              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+                selectedRegion === 'national'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <Building2 className="w-4 h-4 inline mr-2" />
+              전국
+            </button>
+          )}
         </div>
       </div>
 
@@ -189,8 +294,9 @@ const MapRegionSelector = ({ selectedRegion, onRegionSelect }) => {
           attributionControl={false}
         >
           {markers}
+          {districtMarkers}
 
-          {hoveredRegion && (
+          {hoveredRegion && !showDistricts && (
             <Popup
               longitude={REGION_COORDINATES[hoveredRegion]?.lng}
               latitude={REGION_COORDINATES[hoveredRegion]?.lat}
@@ -209,15 +315,40 @@ const MapRegionSelector = ({ selectedRegion, onRegionSelect }) => {
                   </h3>
                 </div>
                 <div className="space-y-1 text-xs text-gray-600">
-                  <p><span className="font-medium">단체장:</span> {regions[hoveredRegion]?.leader}</p>
-                  <p>
-                    <span className="font-medium">정당:</span>{' '}
-                    <span className={regions[hoveredRegion]?.party === '국민의힘' ? 'text-red-600' : 'text-blue-600'}>
-                      {regions[hoveredRegion]?.party}
-                    </span>
-                  </p>
-                  <p><span className="font-medium">인구:</span> {regions[hoveredRegion]?.population}명</p>
+                  {districtsData[hoveredRegion] && (
+                    <p className="text-blue-600 font-medium">
+                      선거구 {districtsData[hoveredRegion].districts.length}개
+                      <br />
+                      클릭하여 선거구 보기
+                    </p>
+                  )}
                 </div>
+              </div>
+            </Popup>
+          )}
+
+          {hoveredDistrict && showDistricts && (
+            <Popup
+              longitude={convertDistrictCoords(
+                hoveredDistrict.regionKey,
+                hoveredDistrict.position.x,
+                hoveredDistrict.position.y
+              )?.lng}
+              latitude={convertDistrictCoords(
+                hoveredDistrict.regionKey,
+                hoveredDistrict.position.x,
+                hoveredDistrict.position.y
+              )?.lat}
+              anchor="top"
+              onClose={() => setHoveredDistrict(null)}
+              closeButton={false}
+              className="district-popup"
+            >
+              <div className="p-2 min-w-[150px]">
+                <h3 className="font-semibold text-gray-800 text-sm">
+                  {hoveredDistrict.name}
+                </h3>
+                <p className="text-xs text-gray-600 mt-1">선거구</p>
               </div>
             </Popup>
           )}
@@ -226,22 +357,31 @@ const MapRegionSelector = ({ selectedRegion, onRegionSelect }) => {
 
       <div className="mt-4 text-sm text-gray-600">
         <div className="flex items-center space-x-6">
-          <div className="flex items-center">
-            <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-            <span>국가</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-3 h-3 bg-violet-500 rounded-full mr-2"></div>
-            <span>광역시</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></div>
-            <span>도/특별자치</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-            <span>선택됨</span>
-          </div>
+          {!showDistricts ? (
+            <>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                <span>국가</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-violet-500 rounded-full mr-2"></div>
+                <span>광역시</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></div>
+                <span>도/특별자치</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                <span>선택됨</span>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-amber-500 rounded-full mr-2"></div>
+              <span>선거구 ({districtsData[selectedRegionKey]?.districts?.length}개)</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

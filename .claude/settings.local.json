@@ -11,7 +11,17 @@
       "Bash(npm run build:*)",
       "Bash(rm:*)",
       "Bash(npm start)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(sqlite3:*)",
+      "Bash(python:*)",
+      "Bash(git checkout:*)",
+      "Bash(tasklist)",
+      "Bash(findstr:*)",
+      "Bash(timeout:*)",
+      "Bash(if exist node_modules.cache rmdir /s /q node_modules.cache)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
