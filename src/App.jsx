@@ -83,6 +83,14 @@ function App() {
 
   const currentRegion = regions[selectedRegion];
 
+  // Filter officials by selected region
+  const regionOfficials = useMemo(() => {
+    if (!selectedRegion || selectedRegion === 'national') {
+      return officials;
+    }
+    return officials.filter(official => official.region === selectedRegion);
+  }, [officials, selectedRegion]);
+
   const handleSelectOfficial = (official) => {
     setSelectedOfficial(official);
   };
@@ -158,97 +166,49 @@ function App() {
             />
           )
         ) : (
-          <>
-            {/* Region Selector */}
-            <StaticMapSelector 
-              selectedRegion={selectedRegion} 
-              onRegionSelect={setSelectedRegion} 
-            />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left: Map Selector */}
+            <div className="lg:col-span-1">
+              <StaticMapSelector
+                selectedRegion={selectedRegion}
+                onRegionSelect={setSelectedRegion}
+              />
+            </div>
 
-            {/* Show message if no region selected */}
-            {!selectedRegion ? (
-              <div className="bg-blue-50 dark:bg-slate-800/50 border border-blue-200 dark:border-slate-600 rounded-lg p-12 text-center">
-                <Map className="w-16 h-16 text-blue-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-slate-100 mb-2">
-                  지역을 선택해주세요
-                </h3>
-                <p className="text-gray-600 dark:text-slate-300">
-                  위 지도에서 관심있는 지역을 클릭하면 해당 지역의 공약 현황을 확인할 수 있습니다.
-                </p>
-              </div>
-            ) : (
-              <>
-                {currentRegion && (
-                  <div className="mb-6 bg-blue-50 dark:bg-slate-800/50 border border-blue-200 dark:border-slate-600 rounded-lg p-4">
-                    <h2 className="text-xl font-bold text-blue-900 dark:text-slate-100 mb-2">
-                      {currentRegion.name} - 국회의원 공약 현황
-                    </h2>
-                    <p className="text-sm text-gray-600 dark:text-slate-400 mb-3">
-                      이 지역 국회의원들의 공약 이행 현황입니다. 광역단체장 공약은 "인물별 공약" 탭에서 확인하세요.
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">지역:</span>{' '}
-                        <span className="text-gray-900 dark:text-white">{currentRegion.name}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">유형:</span>{' '}
-                        <span className="text-gray-900 dark:text-white">{currentRegion.type}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">인구:</span>{' '}
-                        <span className="text-gray-900 dark:text-white">{currentRegion.population}명</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <StatsOverview promises={filteredPromises} />
-
-                <FilterPanel
-                  selectedLevel={selectedLevel}
-                  selectedCategory={selectedCategory}
-                  selectedStatus={selectedStatus}
-                  searchTerm={searchTerm}
-                  onLevelChange={setSelectedLevel}
-                  onCategoryChange={setSelectedCategory}
-                  onStatusChange={setSelectedStatus}
-                  onSearchChange={setSearchTerm}
-                />
-
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
-                    공약 목록 ({filteredPromises.length}개)
+            {/* Right: Officials List or Message */}
+            <div className="lg:col-span-2">
+              {!selectedRegion ? (
+                <div className="bg-blue-50 dark:bg-slate-800/50 border border-blue-200 dark:border-slate-600 rounded-lg p-12 text-center h-full flex flex-col items-center justify-center">
+                  <Map className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-slate-100 mb-2">
+                    지역을 선택해주세요
                   </h3>
+                  <p className="text-gray-600 dark:text-slate-300">
+                    왼쪽 지도에서 광역시/도를 클릭하면<br />
+                    해당 지역 국회의원 목록을 확인할 수 있습니다.
+                  </p>
                 </div>
+              ) : (
+                <>
+                  {currentRegion && (
+                    <div className="mb-6 bg-blue-50 dark:bg-slate-800/50 border border-blue-200 dark:border-slate-600 rounded-lg p-4">
+                      <h2 className="text-xl font-bold text-blue-900 dark:text-slate-100 mb-2">
+                        {currentRegion.name} 국회의원
+                      </h2>
+                      <p className="text-sm text-gray-600 dark:text-slate-400">
+                        해당 지역의 국회의원을 클릭하여 공약을 확인하세요.
+                      </p>
+                    </div>
+                  )}
 
-                {filteredPromises.length === 0 ? (
-                  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-12 text-center">
-                    <p className="text-gray-500 dark:text-slate-400 text-lg">
-                      검색 조건에 맞는 공약이 없습니다.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setSelectedLevel('all');
-                        setSelectedCategory('all');
-                        setSelectedStatus('all');
-                        setSearchTerm('');
-                      }}
-                      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                    >
-                      필터 초기화
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {filteredPromises.map((promise) => (
-                      <PromiseCard key={promise.id} promise={promise} />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </>
+                  <OfficialsList
+                    officials={regionOfficials}
+                    onSelectOfficial={handleSelectOfficial}
+                  />
+                </>
+              )}
+            </div>
+          </div>
         )}
       </main>
 

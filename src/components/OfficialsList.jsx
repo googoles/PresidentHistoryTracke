@@ -2,23 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { User, TrendingUp, CheckCircle, XCircle, Clock, ChevronRight, Search, ChevronLeft } from 'lucide-react';
 
 const OfficialsList = ({ officials, onSelectOfficial }) => {
-  const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedParty, setSelectedParty] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
-  // Extract unique regions from officials
-  const regions = useMemo(() => {
-    const regionSet = new Set(officials.map(o => o.region).filter(Boolean));
-    const regionArray = Array.from(regionSet).sort();
-
-    console.log('[OfficialsList] Total officials:', officials.length);
-    console.log('[OfficialsList] Unique regions:', regionArray);
-    console.log('[OfficialsList] Sample official:', officials[0]);
-
-    return ['all', ...regionArray];
-  }, [officials]);
 
   // Extract unique parties
   const parties = useMemo(() => {
@@ -28,24 +15,19 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
 
   // Filter and sort officials
   const filteredOfficials = useMemo(() => {
-    console.log('[OfficialsList] Filtering with:', { selectedRegion, selectedParty, searchTerm });
-
     let filtered = officials.filter(official => {
-      const regionMatch = selectedRegion === 'all' || official.region === selectedRegion;
       const partyMatch = selectedParty === 'all' || official.party === selectedParty;
       const searchMatch = searchTerm === '' ||
         official.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         official.district?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         official.position?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return regionMatch && partyMatch && searchMatch;
+      return partyMatch && searchMatch;
     });
-
-    console.log('[OfficialsList] Filtered count:', filtered.length);
 
     // Sort by name (가나다순)
     return filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko-KR'));
-  }, [officials, selectedRegion, selectedParty, searchTerm]);
+  }, [officials, selectedParty, searchTerm]);
 
   // Pagination
   const totalPages = Math.ceil(filteredOfficials.length / itemsPerPage);
@@ -55,7 +37,7 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
   // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [selectedRegion, selectedParty, searchTerm]);
+  }, [selectedParty, searchTerm]);
 
   const getProgressRate = (official) => {
     const total = official.totalPromises;
@@ -67,26 +49,6 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
     if (rate >= 70) return 'text-green-600';
     if (rate >= 40) return 'text-yellow-600';
     return 'text-red-600';
-  };
-
-  const regionNames = {
-    seoul: '서울',
-    busan: '부산',
-    daegu: '대구',
-    incheon: '인천',
-    gwangju: '광주',
-    daejeon: '대전',
-    ulsan: '울산',
-    sejong: '세종',
-    gyeonggi: '경기',
-    gangwon: '강원',
-    chungbuk: '충북',
-    chungnam: '충남',
-    jeonbuk: '전북',
-    jeonnam: '전남',
-    gyeongbuk: '경북',
-    gyeongnam: '경남',
-    jeju: '제주'
   };
 
   return (
@@ -112,19 +74,6 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
 
           {/* Filters */}
           <div className="flex flex-wrap gap-4">
-            <select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
-            >
-              <option value="all">전체 지역</option>
-              {regions.filter(r => r !== 'all').map(region => (
-                <option key={region} value={region}>
-                  {regionNames[region] || region}
-                </option>
-              ))}
-            </select>
-
             <select
               value={selectedParty}
               onChange={(e) => setSelectedParty(e.target.value)}
