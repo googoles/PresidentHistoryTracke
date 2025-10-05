@@ -11,7 +11,13 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
   // Extract unique regions from officials
   const regions = useMemo(() => {
     const regionSet = new Set(officials.map(o => o.region).filter(Boolean));
-    return ['all', ...Array.from(regionSet).sort()];
+    const regionArray = Array.from(regionSet).sort();
+
+    console.log('[OfficialsList] Total officials:', officials.length);
+    console.log('[OfficialsList] Unique regions:', regionArray);
+    console.log('[OfficialsList] Sample official:', officials[0]);
+
+    return ['all', ...regionArray];
   }, [officials]);
 
   // Extract unique parties
@@ -22,6 +28,8 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
 
   // Filter and sort officials
   const filteredOfficials = useMemo(() => {
+    console.log('[OfficialsList] Filtering with:', { selectedRegion, selectedParty, searchTerm });
+
     let filtered = officials.filter(official => {
       const regionMatch = selectedRegion === 'all' || official.region === selectedRegion;
       const partyMatch = selectedParty === 'all' || official.party === selectedParty;
@@ -32,6 +40,8 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
 
       return regionMatch && partyMatch && searchMatch;
     });
+
+    console.log('[OfficialsList] Filtered count:', filtered.length);
 
     // Sort by name (가나다순)
     return filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko-KR'));

@@ -16,8 +16,10 @@
 export function transformCandidateToOfficial(candidate, pledges = [], statistics = {}) {
   if (!candidate) return null;
 
-  // 선거구명에서 지역 추출 (예: "종로구" -> seoul)
-  const regionKey = extractRegionKey(candidate.sgg_name);
+  // Use metro_city from DB if available, otherwise extract from sgg_name
+  const regionKey = candidate.metro_city
+    ? convertMetroCityToRegionKey(candidate.metro_city)
+    : extractRegionKey(candidate.sgg_name);
 
   return {
     id: `rep-${candidate.hubo_id}`,
@@ -28,6 +30,7 @@ export function transformCandidateToOfficial(candidate, pledges = [], statistics
     profileImage: `/images/representatives/${candidate.hubo_id}.jpg`,
     level: 'district',  // 선거구 레벨
     region: regionKey,
+    metroCity: candidate.metro_city, // Add metro_city for filtering
     district: candidate.sgg_name,
 
     // 선거 정보
@@ -50,7 +53,34 @@ export function transformCandidateToOfficial(candidate, pledges = [], statistics
 }
 
 /**
- * 선거구명에서 지역 키 추출
+ * DB의 metro_city를 region key로 변환
+ */
+function convertMetroCityToRegionKey(metroCity) {
+  const metroCityMap = {
+    '서울': 'seoul',
+    '부산': 'busan',
+    '대구': 'daegu',
+    '인천': 'incheon',
+    '광주': 'gwangju',
+    '대전': 'daejeon',
+    '울산': 'ulsan',
+    '세종': 'sejong',
+    '경기': 'gyeonggi',
+    '강원': 'gangwon',
+    '충북': 'chungbuk',
+    '충남': 'chungnam',
+    '전북': 'jeonbuk',
+    '전남': 'jeonnam',
+    '경북': 'gyeongbuk',
+    '경남': 'gyeongnam',
+    '제주': 'jeju'
+  };
+
+  return metroCityMap[metroCity] || 'unknown';
+}
+
+/**
+ * 선거구명에서 지역 키 추출 (fallback)
  */
 function extractRegionKey(districtName) {
   // 서울
