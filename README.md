@@ -229,7 +229,7 @@ PresidentHistoryTracker/
 - [x] Vercel 배포
 - [ ] 도메인 연결
 - [x] 성능 최적화 (코드 스플리팅, React.memo)
-- [ ] SEO 최적화
+- [x] SEO 최적화 (Meta tags, robots.txt, sitemap.xml)
 - [ ] 모니터링 설정
 
 ### Phase 6: 고급 기능 (계획)

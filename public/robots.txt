@@ -1,0 +1,14 @@
+# robots.txt for Korea Promise Tracker
+# https://korea-promise-tracker.vercel.app
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://korea-promise-tracker.vercel.app/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Disallow paths (none for now)
+# Disallow: /admin/
