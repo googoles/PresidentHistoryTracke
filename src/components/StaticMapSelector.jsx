@@ -207,4 +207,4 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
   );
 };
 
-export default StaticMapSelector;
+export default React.memo(StaticMapSelector);

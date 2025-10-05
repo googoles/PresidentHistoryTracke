@@ -29,19 +29,20 @@
 **난이도**: 쉬움
 **완료일**: 2025-10-06
 
-#### 5.2 성능 최적화
-- [ ] React.lazy()를 사용한 코드 스플리팅
+#### 5.2 성능 최적화 ✅
+- [x] React.lazy()를 사용한 코드 스플리팅
   - OfficialsList, OfficialDetail 컴포넌트 lazy loading
-  - 번들 크기 분석 (`npm run analyze`)
-- [ ] 이미지 최적화
-  - korea-map.svg 최적화 (SVGO 사용)
-  - Lazy loading for images
-- [ ] Memoization 개선
-  - useMemo/useCallback 최적화
-  - React.memo로 불필요한 리렌더링 방지
+  - Suspense fallback UI 구현
+- [x] 번들 크기 분석 도구 추가
+  - source-map-explorer 설치
+  - `npm run analyze` 스크립트 추가
+- [x] Memoization 개선
+  - React.memo로 OfficialsList, OfficialDetail, StaticMapSelector 최적화
+  - 불필요한 리렌더링 방지
 
 **예상 소요 시간**: 3-4시간
 **난이도**: 중간
+**완료일**: 2025-10-06
 
 #### 5.3 SEO 최적화
 - [ ] meta tags 개선 (title, description, og:image)

@@ -228,7 +228,7 @@ PresidentHistoryTracker/
 ### Phase 5: 배포 및 최적화 (현재)
 - [x] Vercel 배포
 - [ ] 도메인 연결
-- [ ] 성능 최적화
+- [x] 성능 최적화 (코드 스플리팅, React.memo)
 - [ ] SEO 최적화
 - [ ] 모니터링 설정
 

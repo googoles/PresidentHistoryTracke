@@ -255,4 +255,4 @@ const OfficialsList = ({ officials, onSelectOfficial }) => {
   );
 };
 
-export default OfficialsList;
+export default React.memo(OfficialsList);

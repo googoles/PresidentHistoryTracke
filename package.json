@@ -18,7 +18,8 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "eslintConfig": {
     "extends": [
@@ -47,6 +48,7 @@
     "postcss": "^8.4.32",
     "react-app-rewired": "^2.2.1",
     "react-scripts": "^5.0.1",
+    "source-map-explorer": "^2.5.3",
     "tailwindcss": "^3.4.0"
   }
 }

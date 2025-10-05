@@ -258,4 +258,4 @@ const OfficialDetail = ({ official, onBack }) => {
   );
 };
 
-export default OfficialDetail;
+export default React.memo(OfficialDetail);

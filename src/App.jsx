@@ -1,16 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense, lazy } from 'react';
 import StaticMapSelector from './components/StaticMapSelector';
-import PromiseCard from './components/PromiseCard';
-import FilterPanel from './components/FilterPanel';
-import StatsOverview from './components/StatsOverview';
-import OfficialsList from './components/OfficialsList';
-import OfficialDetail from './components/OfficialDetail';
 import DarkModeToggle from './components/DarkModeToggle';
 import { useDBPromises } from './hooks/useDBPromises';
 import { useDBOfficials } from './hooks/useDBOfficials';
 import { useDBRegions } from './hooks/useDBRegions';
 import { filterPromises, getPromisesByRegion, sortPromisesByStatus } from './utils/helpers';
 import { Building2, Map, Users } from 'lucide-react';
+
+// Lazy load components for code splitting
+const OfficialsList = lazy(() => import('./components/OfficialsList'));
+const OfficialDetail = lazy(() => import('./components/OfficialDetail'));
 
 function App() {
   // Fetch data from DB
@@ -155,17 +154,23 @@ function App() {
         </div>
 
         {mainView === 'officials' ? (
-          selectedOfficial ? (
-            <OfficialDetail
-              official={selectedOfficial}
-              onBack={handleBackToList}
-            />
-          ) : (
-            <OfficialsList
-              officials={officials}
-              onSelectOfficial={handleSelectOfficial}
-            />
-          )
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          }>
+            {selectedOfficial ? (
+              <OfficialDetail
+                official={selectedOfficial}
+                onBack={handleBackToList}
+              />
+            ) : (
+              <OfficialsList
+                officials={officials}
+                onSelectOfficial={handleSelectOfficial}
+              />
+            )}
+          </Suspense>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left: Map Selector */}
@@ -202,10 +207,16 @@ function App() {
                     </div>
                   )}
 
-                  <OfficialsList
-                    officials={regionOfficials}
-                    onSelectOfficial={handleSelectOfficial}
-                  />
+                  <Suspense fallback={
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    </div>
+                  }>
+                    <OfficialsList
+                      officials={regionOfficials}
+                      onSelectOfficial={handleSelectOfficial}
+                    />
+                  </Suspense>
                 </>
               )}
             </div>
