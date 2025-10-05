@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { regions } from '../data/regions';
 import { ArrowLeft } from 'lucide-react';
+import districtsData from '../data/districts.json';
+import DistrictMarker from './DistrictMarker';
+import DistrictPopup from './DistrictPopup';
 
 // Mapping from SVG group IDs to our region keys
 const SVG_TO_REGION_MAP = {
   '서울특별시': 'seoul',
-  '부산광역시': 'busan', 
+  '부산광역시': 'busan',
   '대구광역시': 'daegu',
   '인천광역시': 'incheon',
   '광주광역시': 'gwangju',
@@ -28,7 +31,65 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
   const [hoveredRegion, setHoveredRegion] = useState(null);
   const [zoomedProvince, setZoomedProvince] = useState(null);
   const [viewBox, setViewBox] = useState(null);
+  const [hoveredDistrict, setHoveredDistrict] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [clusterPopup, setClusterPopup] = useState(null);
   const svgRef = useRef(null);
+
+  // Cluster districts that are too close together
+  const clusteredDistricts = useMemo(() => {
+    if (!zoomedProvince || !districtsData[zoomedProvince]) return [];
+
+    const districts = districtsData[zoomedProvince].districts;
+    const clusters = [];
+    const processed = new Set();
+    const CLUSTER_THRESHOLD = 10; // pixels distance
+
+    districts.forEach((district, i) => {
+      if (processed.has(i)) return;
+
+      const x1 = (district.position.x / 100) * 509;
+      const y1 = (district.position.y / 100) * 716.1;
+      const cluster = [district];
+      const clusterIndices = [i];
+
+      districts.forEach((other, j) => {
+        if (i === j || processed.has(j)) return;
+
+        const x2 = (other.position.x / 100) * 509;
+        const y2 = (other.position.y / 100) * 716.1;
+        const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+        if (distance < CLUSTER_THRESHOLD) {
+          cluster.push(other);
+          clusterIndices.push(j);
+        }
+      });
+
+      clusterIndices.forEach(idx => processed.add(idx));
+
+      if (cluster.length > 1) {
+        // Multiple districts in same area - create cluster marker
+        const avgX = cluster.reduce((sum, d) => sum + d.position.x, 0) / cluster.length;
+        const avgY = cluster.reduce((sum, d) => sum + d.position.y, 0) / cluster.length;
+        clusters.push({
+          isCluster: true,
+          districts: cluster,
+          position: { x: avgX, y: avgY },
+          name: `${cluster.length}개 선거구`
+        });
+      } else {
+        // Single district
+        clusters.push({
+          isCluster: false,
+          districts: cluster,
+          ...district
+        });
+      }
+    });
+
+    return clusters;
+  }, [zoomedProvince]);
 
   useEffect(() => {
     // Load SVG content
@@ -45,19 +106,17 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
   // Calculate viewBox for zoomed province
   const calculateViewBox = (groupElement) => {
     const bbox = groupElement.getBBox();
-    // Use more padding for smaller regions like cities
     const padding = bbox.width < 100 ? 40 : 20;
     return `${bbox.x - padding} ${bbox.y - padding} ${bbox.width + padding * 2} ${bbox.height + padding * 2}`;
   };
 
-  // Handle region zoom (provinces, metropolitan cities, and special cities)
+  // Handle region zoom
   const handleRegionZoom = (regionKey, svgRegionId) => {
     const region = regions[regionKey];
-    // Allow zoom for provinces, metropolitan cities, and special cities (not national)
     if (region && (region.type === 'province' || region.type === 'metropolitan' || region.type === 'special')) {
       const svgElement = svgRef.current.querySelector('svg');
       const groupElement = svgElement.querySelector(`g[id="${svgRegionId}"]`);
-      
+
       if (groupElement) {
         const newViewBox = calculateViewBox(groupElement);
         setViewBox(newViewBox);
@@ -71,6 +130,8 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
   const resetZoom = () => {
     setZoomedProvince(null);
     setViewBox(null);
+    setSelectedDistrict(null);
+    setClusterPopup(null);
   };
 
   useEffect(() => {
@@ -78,20 +139,19 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
 
     const svgElement = svgRef.current;
     const svg = svgElement.querySelector('svg');
-    
+
     // Apply viewBox if zoomed
     if (svg && viewBox) {
       svg.setAttribute('viewBox', viewBox);
     } else if (svg) {
-      // Reset to original viewBox
       svg.setAttribute('viewBox', '0 0 509 716.1');
     }
-    
+
     // Find all region groups and add interactivity
     Object.keys(SVG_TO_REGION_MAP).forEach(svgRegionId => {
       const regionKey = SVG_TO_REGION_MAP[svgRegionId];
       const groupElement = svgElement.querySelector(`g[id="${svgRegionId}"]`);
-      
+
       if (groupElement) {
         // Hide other regions when zoomed
         if (zoomedProvince && regionKey !== zoomedProvince) {
@@ -100,49 +160,46 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
           groupElement.style.display = 'block';
         }
 
-        // Style the region based on selection state
+        // Style the region
         const isSelected = selectedRegion === regionKey;
         const isHovered = hoveredRegion === regionKey;
-        
-        // Apply styles to all paths within the group
+
         const paths = groupElement.querySelectorAll('path, polygon');
         paths.forEach(path => {
           path.style.cursor = 'pointer';
           path.style.transition = 'all 0.2s ease';
-          
+
           if (isSelected) {
-            path.style.fill = '#3B82F6'; // blue-500
-            path.style.stroke = '#1E40AF'; // blue-800
+            path.style.fill = '#3B82F6';
+            path.style.stroke = '#1E40AF';
             path.style.strokeWidth = '1.5';
           } else if (isHovered) {
-            path.style.fill = '#93C5FD'; // blue-300
-            path.style.stroke = '#3B82F6'; // blue-500
+            path.style.fill = '#93C5FD';
+            path.style.stroke = '#3B82F6';
             path.style.strokeWidth = '1';
           } else {
-            // Default styling based on region type
             const region = regions[regionKey];
             if (region) {
               switch (region.type) {
                 case 'metropolitan':
-                  path.style.fill = '#8B5CF6'; // violet-500
+                  path.style.fill = '#8B5CF6';
                   break;
                 case 'special':
-                  path.style.fill = '#F59E0B'; // amber-500
+                  path.style.fill = '#F59E0B';
                   break;
                 default:
-                  path.style.fill = '#10B981'; // emerald-500
+                  path.style.fill = '#10B981';
               }
             } else {
-              path.style.fill = '#9CA3AF'; // gray-400
+              path.style.fill = '#9CA3AF';
             }
-            // Check if dark mode is active
             const isDarkMode = document.documentElement.classList.contains('dark');
-            path.style.stroke = isDarkMode ? '#374151' : '#FFFFFF'; // slate-700 for dark, white for light
+            path.style.stroke = isDarkMode ? '#374151' : '#FFFFFF';
             path.style.strokeWidth = '0.5';
           }
         });
 
-        // Add event listeners
+        // Event listeners
         const handleClick = (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -156,7 +213,6 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
         groupElement.addEventListener('mouseenter', handleMouseEnter);
         groupElement.addEventListener('mouseleave', handleMouseLeave);
 
-        // Cleanup function will be called when component unmounts or dependencies change
         return () => {
           groupElement.removeEventListener('click', handleClick);
           groupElement.removeEventListener('mouseenter', handleMouseEnter);
@@ -218,26 +274,72 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
             </button>
           )}
         </div>
-        
-        {/* Zoom instruction */}
+
         {!zoomedProvince && (
           <div className="mb-2 text-sm text-gray-600 dark:text-slate-300 text-center">
             지역을 클릭하면 상세 구/군을 볼 수 있습니다
           </div>
         )}
-        
+
         <div className="relative bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4">
           <div className="flex justify-center">
-            <div 
+            <div
               ref={svgRef}
               className={`w-full ${zoomedProvince ? 'max-w-md' : 'max-w-xs'}`}
-              style={{ height: 'auto' }}
-              dangerouslySetInnerHTML={{ __html: svgContent }}
-            />
+              style={{ height: 'auto', position: 'relative' }}
+            >
+              <div dangerouslySetInnerHTML={{ __html: svgContent }} />
+
+              {zoomedProvince && clusteredDistricts.length > 0 && (
+                <svg
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    pointerEvents: 'none'
+                  }}
+                  viewBox={viewBox || '0 0 509 716.1'}
+                  preserveAspectRatio="xMidYMid meet"
+                >
+                  <g style={{ pointerEvents: 'all' }}>
+                    {clusteredDistricts.map((item, index) => (
+                      <DistrictMarker
+                        key={`district-${index}`}
+                        district={item}
+                        index={index}
+                        isCluster={item.isCluster}
+                        clusterCount={item.isCluster ? item.districts.length : 0}
+                        onHover={(d) => setHoveredDistrict(d)}
+                        onLeave={() => setHoveredDistrict(null)}
+                        onClick={(d) => {
+                          if (d.isCluster) {
+                            const svgContainer = svgRef.current.getBoundingClientRect();
+                            const x = (d.position.x / 100) * 509;
+                            const y = (d.position.y / 100) * 716.1;
+                            const scale = svgContainer.width / 509;
+                            setClusterPopup({
+                              districts: d.districts,
+                              position: {
+                                x: svgContainer.left + (x * scale),
+                                y: svgContainer.top + (y * scale)
+                              }
+                            });
+                          } else {
+                            setSelectedDistrict(d);
+                            console.log('Selected district:', d.name, 'in', districtsData[zoomedProvince].name);
+                          }
+                        }}
+                      />
+                    ))}
+                  </g>
+                </svg>
+              )}
+            </div>
           </div>
-          
-          {/* Hover tooltip */}
-          {hoveredRegion && regions[hoveredRegion] && (
+
+          {hoveredRegion && regions[hoveredRegion] && !zoomedProvince && (
             <div className="absolute top-4 left-4 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg p-3 pointer-events-none z-10">
               <h3 className="font-semibold text-gray-800 dark:text-slate-100 mb-1">
                 {regions[hoveredRegion].name}
@@ -254,10 +356,21 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
               </div>
             </div>
           )}
+
+          {hoveredDistrict && zoomedProvince && (
+            <div className="absolute top-4 left-4 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg p-3 pointer-events-none z-10">
+              <h3 className="font-semibold text-gray-800 dark:text-slate-100 mb-1">
+                {hoveredDistrict.name}
+              </h3>
+              <div className="space-y-1 text-xs text-gray-600 dark:text-slate-300">
+                <p><span className="font-medium">지역:</span> {districtsData[zoomedProvince].name}</p>
+                <p className="text-blue-600 dark:text-blue-400">클릭하여 선택</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Legend */}
       <div className="mt-4 text-sm text-gray-600 dark:text-slate-300">
         <div className="flex items-center space-x-6 flex-wrap">
           <div className="flex items-center">
@@ -278,6 +391,19 @@ const StaticMapSelector = ({ selectedRegion, onRegionSelect }) => {
           </div>
         </div>
       </div>
+
+      {clusterPopup && (
+        <DistrictPopup
+          districts={clusterPopup.districts}
+          position={clusterPopup.position}
+          regionName={districtsData[zoomedProvince]?.name}
+          onSelect={(district) => {
+            setSelectedDistrict(district);
+            console.log('Selected district from cluster:', district.name);
+          }}
+          onClose={() => setClusterPopup(null)}
+        />
+      )}
     </div>
   );
 };
