@@ -1,137 +1,84 @@
 /**
- * Promises Data Provider - DB Based
- *
- * DB의 Pledges 테이블을 promises.json 형식으로 변환
+ * Hook to get regions data with DB winner information
  */
+import { useState, useEffect } from 'react';
+import { useElectionData } from '../contexts/ElectionDataContext';
+import { regionMetadata } from '../data/regions';
 
-/**
- * DB 공약을 promises.json 형식으로 변환
- *
- * @param {Object} pledge - DB Pledges 테이블의 row
- * @param {Object} candidate - 후보자 정보
- * @returns {Object} promises.json 형식의 객체
- */
-export function transformPledgeToPromise(pledge, candidate) {
-  if (!pledge) return null;
+export function useDBRegions() {
+  const [regions, setRegions] = useState(regionMetadata);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { dataSource } = useElectionData();
 
-  // 상태 매핑
-  const statusMap = {
-    '준비중': '미달성',
-    '진행중': '진행중',
-    '완료': '달성',
-    '보류': '중단',
-    '중단': '중단'
-  };
+  useEffect(() => {
+    async function enrichRegionsWithDBData() {
+      try {
+        setLoading(true);
+        setError(null);
 
-  // 진척도 매핑
-  const progressMap = {
-    '준비중': 0,
-    '진행중': 50,
-    '완료': 100,
-    '보류': 0,
-    '중단': 0
-  };
+        // Get party statistics for each region
+        const enrichedRegions = { ...regionMetadata };
 
-  // 카테고리 매핑
-  const categoryMap = {
-    '교통': '교통인프라',
-    '주택': '부동산정책',
-    '복지': '복지정책',
-    '교육': '교육정책',
-    '경제': '경제정책',
-    '환경': '환경정책',
-    '문화': '문화정책',
-    '안전': '안전정책',
-    '행정': '행정개혁',
-    '의료': '의료정책',
-    '일자리': '일자리창출',
-    '청년': '청년정책'
-  };
+        // Get all winners to calculate party stats
+        const winners = await dataSource.getAllWinners();
 
-  const status = statusMap[pledge.status] || pledge.status;
-  const progress = progressMap[pledge.status] || 0;
-  const category = categoryMap[pledge.pledge_realm] || pledge.pledge_realm || '기타';
+        // Group winners by region and calculate party statistics
+        for (const regionKey in enrichedRegions) {
+          if (regionKey === 'national') continue;
 
-  return {
-    id: `pledge-${pledge.pledge_id}`,
-    title: pledge.pledge_title,
-    category: category,
-    level: 'district',  // 국회의원 공약
-    officialId: `rep-${candidate.hubo_id}`,
-    officialName: candidate.name,
-    district: candidate.sgg_name,
-    party: candidate.party_name,
+          const regionWinners = winners.filter(w => {
+            // Use same region extraction logic from officials.js
+            const district = w.sgg_name;
+            const extractedRegion = extractRegionFromDistrict(district);
+            return extractedRegion === regionKey;
+          });
 
-    description: pledge.pledge_content || pledge.pledge_title,
-    status: status,
-    progress: progress,
+          // Calculate party statistics
+          const partyStats = {};
+          regionWinners.forEach(winner => {
+            const party = winner.party_name;
+            partyStats[party] = (partyStats[party] || 0) + 1;
+          });
 
-    order: pledge.pledge_order,
-    realm: pledge.pledge_realm,
+          // Find leading party
+          let leadingParty = null;
+          let maxSeats = 0;
+          for (const [party, seats] of Object.entries(partyStats)) {
+            if (seats > maxSeats) {
+              maxSeats = seats;
+              leadingParty = party;
+            }
+          }
 
-    startDate: '2024-05-30',  // 제22대 국회 개원일
-    targetDate: '2028-05-29',  // 제22대 국회 종료일
-    lastUpdated: pledge.last_updated,
+          enrichedRegions[regionKey] = {
+            ...enrichedRegions[regionKey],
+            leadingParty,
+            partyStats,
+            totalSeats: regionWinners.length
+          };
+        }
 
-    // 빈 배열 (나중에 크롤링으로 채울 예정)
-    relatedArticles: [],
-    statistics: []
-  };
-}
-
-/**
- * 여러 공약을 promises 배열로 변환
- */
-export function transformPledgesToPromises(pledges, candidates) {
-  const candidateMap = new Map(candidates.map(c => [c.hubo_id, c]));
-
-  return pledges
-    .map(pledge => {
-      const candidate = candidateMap.get(pledge.hubo_id);
-      return candidate ? transformPledgeToPromise(pledge, candidate) : null;
-    })
-    .filter(Boolean);
-}
-
-/**
- * 지역별로 공약을 그룹화
- */
-export function groupPromisesByRegion(promises) {
-  const grouped = {
-    national: [],  // 대통령/총리 공약 (현재는 비어있음)
-    seoul: [],
-    busan: [],
-    daegu: [],
-    incheon: [],
-    gwangju: [],
-    daejeon: [],
-    ulsan: [],
-    sejong: [],
-    gyeonggi: [],
-    gangwon: [],
-    chungbuk: [],
-    chungnam: [],
-    jeonbuk: [],
-    jeonnam: [],
-    gyeongbuk: [],
-    gyeongnam: [],
-    jeju: []
-  };
-
-  promises.forEach(promise => {
-    // district에서 region 추출
-    const region = extractRegionFromDistrict(promise.district);
-    if (grouped[region]) {
-      grouped[region].push(promise);
+        setRegions(enrichedRegions);
+      } catch (err) {
+        console.error('Failed to enrich regions with DB data:', err);
+        setError(err);
+        // Fall back to static metadata
+        setRegions(regionMetadata);
+      } finally {
+        setLoading(false);
+      }
     }
-  });
 
-  return grouped;
+    if (dataSource) {
+      enrichRegionsWithDBData();
+    }
+  }, [dataSource]);
+
+  return { regions, loading, error };
 }
 
-/**
- * 선거구명에서 지역 키 추출 (officials.js와 동일 로직)
- */
+// Helper function from officials.js (duplicated for now)
 function extractRegionFromDistrict(districtName) {
   if (!districtName) return 'unknown';
 

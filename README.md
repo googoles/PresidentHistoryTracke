@@ -14,7 +14,8 @@
 
 - **Frontend**: React 18, Tailwind CSS
 - **Icons**: Lucide React
-- **Database**: Firebase Firestore (준비중)
+- **Database**: SQLite (sql.js) + Supabase (준비중)
+- **State Management**: Context API + Custom Hooks
 - **Hosting**: AWS S3 + CloudFront (준비중)
 
 ## 설치 및 실행
@@ -43,37 +44,65 @@ npm run build
 ## 프로젝트 구조
 
 ```
-korea-promise-tracker/
+PresidentHistoryTracker/
 ├── src/
 │   ├── components/         # React 컴포넌트
-│   │   ├── RegionSelector.jsx
-│   │   ├── PromiseCard.jsx
-│   │   ├── FilterPanel.jsx
-│   │   └── StatsOverview.jsx
-│   ├── data/              # 정적 데이터
-│   │   ├── regions.js     # 지역 정보
-│   │   ├── promises.js    # 공약 데이터
-│   │   └── categories.js  # 카테고리 및 설정
-│   ├── utils/             # 유틸리티 함수
-│   │   ├── firebase.js    # Firebase 설정
-│   │   └── helpers.js     # 헬퍼 함수
-│   └── App.jsx           # 메인 앱 컴포넌트
-├── public/               # 정적 파일
-├── package.json          # 프로젝트 설정
-└── README.md            # 프로젝트 문서
+│   │   ├── StaticMapSelector.jsx  # SVG 지도 선택기
+│   │   ├── PromiseCard.jsx        # 공약 카드
+│   │   ├── FilterPanel.jsx        # 필터 패널
+│   │   ├── StatsOverview.jsx      # 통계 대시보드
+│   │   ├── OfficialsList.jsx      # 당선자 목록
+│   │   └── OfficialDetail.jsx     # 당선자 상세
+│   ├── contexts/           # Context API
+│   │   ├── ElectionDataContext.jsx  # 데이터 소스 Context
+│   │   └── DarkModeContext.jsx      # 다크모드 Context
+│   ├── hooks/              # Custom Hooks
+│   │   ├── useDBPromises.js       # 공약 데이터 hook
+│   │   ├── useDBOfficials.js      # 당선자 데이터 hook
+│   │   └── useDBRegions.js        # 지역 데이터 hook
+│   ├── services/           # 데이터 소스 레이어
+│   │   ├── IElectionDataSource.js   # 인터페이스
+│   │   └── LocalDBDataSource.js     # SQLite 구현
+│   ├── data/               # 데이터 변환 레이어
+│   │   ├── officials.js    # DB → UI 변환 (당선자)
+│   │   ├── promises.js     # DB → UI 변환 (공약)
+│   │   └── regions.js      # 지역 메타데이터
+│   ├── utils/              # 유틸리티 함수
+│   │   └── helpers.js      # 헬퍼 함수
+│   └── App.jsx             # 메인 앱 컴포넌트
+├── public/
+│   ├── data/
+│   │   └── election_data.db    # SQLite 데이터베이스
+│   ├── korea-map.svg           # 한국 지도 SVG
+│   └── index.html
+├── data/                   # 원본 데이터 (백업)
+│   └── election_data.db
+├── package.json
+├── CHANGELOG.md            # 변경 이력
+└── README.md
 ```
 
 ## 환경 변수 설정
 
-`.env` 파일을 생성하고 다음 변수들을 설정하세요:
+`.env.development` 파일에서 데이터 소스를 설정할 수 있습니다:
+
+```bash
+# 로컬 DB 사용 (기본값)
+REACT_APP_USE_SUPABASE=false
+REACT_APP_LOCAL_DB_PATH=/data/election_data.db
+
+# Supabase 사용 시 (미구현)
+# REACT_APP_USE_SUPABASE=true
+# REACT_APP_SUPABASE_URL=your_supabase_url
+# REACT_APP_SUPABASE_ANON_KEY=your_anon_key
+```
+
+### 테스트 모드
+
+DB 연동 테스트를 위해 쿼리 파라미터를 사용할 수 있습니다:
 
 ```
-REACT_APP_FIREBASE_API_KEY=your_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
-REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-REACT_APP_FIREBASE_APP_ID=your_app_id
+http://localhost:3000?test=election-db
 ```
 
 ## 공약 상태

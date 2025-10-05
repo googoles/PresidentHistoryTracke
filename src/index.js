@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import TestElectionDB from './TestElectionDB'; // 🧪 테스트용 앱
 import { DarkModeProvider } from './contexts/DarkModeContext';
+import { ElectionDataProvider } from './contexts/ElectionDataContext';
 import reportWebVitals from './reportWebVitals';
 
 // 🧪 테스트 모드: URL 파라미터로 제어
@@ -18,9 +19,11 @@ const AppComponent = testMode === 'election-db' ? TestElectionDB : App;
 
 root.render(
   <React.StrictMode>
-    <DarkModeProvider>
-      <AppComponent />
-    </DarkModeProvider>
+    <ElectionDataProvider>
+      <DarkModeProvider>
+        <AppComponent />
+      </DarkModeProvider>
+    </ElectionDataProvider>
   </React.StrictMode>
 );
 

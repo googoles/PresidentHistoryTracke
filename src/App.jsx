@@ -6,13 +6,18 @@ import StatsOverview from './components/StatsOverview';
 import OfficialsList from './components/OfficialsList';
 import OfficialDetail from './components/OfficialDetail';
 import DarkModeToggle from './components/DarkModeToggle';
-import { promises } from './data/promises';
-import { regions } from './data/regions';
-import officialsData from './data/officials.json';
+import { useDBPromises } from './hooks/useDBPromises';
+import { useDBOfficials } from './hooks/useDBOfficials';
+import { useDBRegions } from './hooks/useDBRegions';
 import { filterPromises, getPromisesByRegion, sortPromisesByStatus } from './utils/helpers';
 import { Building2, Map, Users } from 'lucide-react';
 
 function App() {
+  // Fetch data from DB
+  const { promises, loading: promisesLoading, error: promisesError } = useDBPromises();
+  const { officials, loading: officialsLoading, error: officialsError } = useDBOfficials();
+  const { regions, loading: regionsLoading } = useDBRegions();
+
   const [selectedRegion, setSelectedRegion] = useState('seoul');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -22,12 +27,13 @@ function App() {
   const [selectedOfficial, setSelectedOfficial] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('current'); // 'current' or 'historical'
 
+  // Compute all memoized values BEFORE any conditional returns
   const regionPromises = useMemo(() => {
     if (selectedPeriod === 'historical' && selectedRegion === 'gyeonggi') {
       return promises.gyeonggi_historical || [];
     }
     return getPromisesByRegion(promises, selectedRegion);
-  }, [selectedRegion, selectedPeriod]);
+  }, [promises, selectedRegion, selectedPeriod]);
 
   const filteredPromises = useMemo(() => {
     const filters = {
@@ -40,8 +46,42 @@ function App() {
     return sortPromisesByStatus(filtered);
   }, [regionPromises, selectedLevel, selectedCategory, selectedStatus, searchTerm]);
 
+  const allPromises = useMemo(() => {
+    const promisesList = [];
+    Object.entries(promises).forEach(([region, regionPromises]) => {
+      regionPromises.forEach(promise => {
+        promisesList.push(promise);
+      });
+    });
+    return promisesList;
+  }, [promises]);
+
+  // Show loading state
+  if (promisesLoading || officialsLoading || regionsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-slate-300">데이터베이스 로딩중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (promisesError || officialsError) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">데이터 로딩 실패</p>
+          <p className="text-gray-600 dark:text-slate-300">{promisesError?.message || officialsError?.message}</p>
+        </div>
+      </div>
+    );
+  }
+
   const currentRegion = regions[selectedRegion];
-  
+
   const getCurrentOfficialInfo = () => {
     if (selectedRegion === 'gyeonggi' && selectedPeriod === 'historical') {
       return {
@@ -52,16 +92,6 @@ function App() {
     }
     return currentRegion;
   };
-
-  const allPromises = useMemo(() => {
-    const promisesList = [];
-    Object.entries(promises).forEach(([region, regionPromises]) => {
-      regionPromises.forEach(promise => {
-        promisesList.push(promise);
-      });
-    });
-    return promisesList;
-  }, []);
 
   const handleSelectOfficial = (official) => {
     setSelectedOfficial(official);
@@ -133,8 +163,8 @@ function App() {
               onBack={handleBackToList}
             />
           ) : (
-            <OfficialsList 
-              officials={officialsData.officials}
+            <OfficialsList
+              officials={officials}
               onSelectOfficial={handleSelectOfficial}
             />
           )

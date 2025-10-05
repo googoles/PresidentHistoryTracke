@@ -1,140 +1,58 @@
 /**
- * Promises Data Provider - DB Based
+ * Officials Data Provider - DB Based
  *
- * DB의 Pledges 테이블을 promises.json 형식으로 변환
+ * DB에서 당선자 정보를 가져와서 officials 형식으로 변환
+ * 기존 officials.json 대체
  */
 
 /**
- * DB 공약을 promises.json 형식으로 변환
+ * DB 후보자 데이터를 officials 형식으로 변환
  *
- * @param {Object} pledge - DB Pledges 테이블의 row
- * @param {Object} candidate - 후보자 정보
- * @returns {Object} promises.json 형식의 객체
+ * @param {Object} candidate - DB Candidates 테이블의 row
+ * @param {Array} pledges - 해당 후보자의 공약 목록
+ * @param {Object} statistics - 공약 통계
+ * @returns {Object} officials.json 형식의 객체
  */
-export function transformPledgeToPromise(pledge, candidate) {
-  if (!pledge) return null;
+export function transformCandidateToOfficial(candidate, pledges = [], statistics = {}) {
+  if (!candidate) return null;
 
-  // 상태 매핑
-  const statusMap = {
-    '준비중': '미달성',
-    '진행중': '진행중',
-    '완료': '달성',
-    '보류': '중단',
-    '중단': '중단'
-  };
-
-  // 진척도 매핑
-  const progressMap = {
-    '준비중': 0,
-    '진행중': 50,
-    '완료': 100,
-    '보류': 0,
-    '중단': 0
-  };
-
-  // 카테고리 매핑
-  const categoryMap = {
-    '교통': '교통인프라',
-    '주택': '부동산정책',
-    '복지': '복지정책',
-    '교육': '교육정책',
-    '경제': '경제정책',
-    '환경': '환경정책',
-    '문화': '문화정책',
-    '안전': '안전정책',
-    '행정': '행정개혁',
-    '의료': '의료정책',
-    '일자리': '일자리창출',
-    '청년': '청년정책'
-  };
-
-  const status = statusMap[pledge.status] || pledge.status;
-  const progress = progressMap[pledge.status] || 0;
-  const category = categoryMap[pledge.pledge_realm] || pledge.pledge_realm || '기타';
+  // 선거구명에서 지역 추출 (예: "종로구" -> seoul)
+  const regionKey = extractRegionKey(candidate.sgg_name);
 
   return {
-    id: `pledge-${pledge.pledge_id}`,
-    title: pledge.pledge_title,
-    category: category,
-    level: 'district',  // 국회의원 공약
-    officialId: `rep-${candidate.hubo_id}`,
-    officialName: candidate.name,
-    district: candidate.sgg_name,
+    id: `rep-${candidate.hubo_id}`,
+    name: candidate.name,
+    position: `국회의원 (${candidate.sgg_name})`,
     party: candidate.party_name,
+    term: '2024.05.30 ~ 2028.05.29',  // 제22대 국회 임기
+    profileImage: `/images/representatives/${candidate.hubo_id}.jpg`,
+    level: 'district',  // 선거구 레벨
+    region: regionKey,
+    district: candidate.sgg_name,
 
-    description: pledge.pledge_content || pledge.pledge_title,
-    status: status,
-    progress: progress,
+    // 선거 정보
+    votes: candidate.votes_won,
+    votePercentage: candidate.vote_percentage,
+    age: candidate.age,
+    gender: candidate.gender,
+    job: candidate.job,
+    education: candidate.edu,
+    career: [candidate.career1, candidate.career2].filter(Boolean),
 
-    order: pledge.pledge_order,
-    realm: pledge.pledge_realm,
-
-    startDate: '2024-05-30',  // 제22대 국회 개원일
-    targetDate: '2028-05-29',  // 제22대 국회 종료일
-    lastUpdated: pledge.last_updated,
-
-    // 빈 배열 (나중에 크롤링으로 채울 예정)
-    relatedArticles: [],
-    statistics: []
+    // 공약 정보
+    promiseIds: pledges.map(p => `pledge-${p.pledge_id}`),
+    totalPromises: statistics.total || pledges.length,
+    completedPromises: statistics.completed || 0,
+    inProgressPromises: statistics.inProgress || 0,
+    pendingPromises: statistics.pending || 0,
+    suspendedPromises: statistics.suspended || 0
   };
 }
 
 /**
- * 여러 공약을 promises 배열로 변환
+ * 선거구명에서 지역 키 추출
  */
-export function transformPledgesToPromises(pledges, candidates) {
-  const candidateMap = new Map(candidates.map(c => [c.hubo_id, c]));
-
-  return pledges
-    .map(pledge => {
-      const candidate = candidateMap.get(pledge.hubo_id);
-      return candidate ? transformPledgeToPromise(pledge, candidate) : null;
-    })
-    .filter(Boolean);
-}
-
-/**
- * 지역별로 공약을 그룹화
- */
-export function groupPromisesByRegion(promises) {
-  const grouped = {
-    national: [],  // 대통령/총리 공약 (현재는 비어있음)
-    seoul: [],
-    busan: [],
-    daegu: [],
-    incheon: [],
-    gwangju: [],
-    daejeon: [],
-    ulsan: [],
-    sejong: [],
-    gyeonggi: [],
-    gangwon: [],
-    chungbuk: [],
-    chungnam: [],
-    jeonbuk: [],
-    jeonnam: [],
-    gyeongbuk: [],
-    gyeongnam: [],
-    jeju: []
-  };
-
-  promises.forEach(promise => {
-    // district에서 region 추출
-    const region = extractRegionFromDistrict(promise.district);
-    if (grouped[region]) {
-      grouped[region].push(promise);
-    }
-  });
-
-  return grouped;
-}
-
-/**
- * 선거구명에서 지역 키 추출 (officials.js와 동일 로직)
- */
-function extractRegionFromDistrict(districtName) {
-  if (!districtName) return 'unknown';
-
+function extractRegionKey(districtName) {
   // 서울
   if (districtName.includes('구') && !districtName.includes('시')) {
     return 'seoul';
@@ -222,4 +140,23 @@ function extractRegionFromDistrict(districtName) {
   }
 
   return 'unknown';
+}
+
+/**
+ * 여러 후보자를 officials 배열로 변환
+ */
+export async function transformCandidatesToOfficials(dataSource, candidates) {
+  const officials = [];
+
+  for (const candidate of candidates) {
+    const pledges = await dataSource.getPledgesByCandidate(candidate.hubo_id);
+    const statistics = await dataSource.getPledgeStatistics(candidate.hubo_id);
+    const official = transformCandidateToOfficial(candidate, pledges, statistics);
+
+    if (official) {
+      officials.push(official);
+    }
+  }
+
+  return officials;
 }

@@ -277,6 +277,21 @@ export class LocalDBDataSource extends IElectionDataSource {
   }
 
   /**
+   * 모든 공약 조회 (당선자의 공약만)
+   */
+  async getAllPledges() {
+    const query = `
+      SELECT p.*, c.name as candidate_name, c.sgg_name, c.party_name
+      FROM Pledges p
+      JOIN Candidates c ON p.hubo_id = c.hubo_id
+      WHERE c.is_winner = 1
+      ORDER BY c.sgg_name ASC, p.pledge_order ASC
+    `;
+
+    return this._exec(query);
+  }
+
+  /**
    * 연결 종료
    */
   async close() {

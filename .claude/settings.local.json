@@ -21,7 +21,13 @@
       "Bash(if exist node_modules.cache rmdir /s /q node_modules.cache)",
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(git mv:*)",
+      "Bash(dir:*)",
+      "Bash(if exist nul del nul)",
+      "Bash(copy dataelection_data.db publicdataelection_data.db)"
     ],
     "deny": []
   }
