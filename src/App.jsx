@@ -109,7 +109,7 @@ function App() {
                 <Building2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">대한민국 공약 추적 시스템</h1>
-                  <p className="text-sm text-gray-600 dark:text-slate-300">대통령 및 지자체장 공약 이행 현황</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-300">국회의원 및 지자체장 공약 이행 현황</p>
                 </div>
               </div>
               <DarkModeToggle />

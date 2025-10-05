@@ -28,7 +28,8 @@
       "Bash(dir:*)",
       "Bash(if exist nul del nul)",
       "Bash(copy dataelection_data.db publicdataelection_data.db)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }
