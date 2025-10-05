@@ -131,7 +131,7 @@ SQLite에서 Supabase로 데이터 마이그레이션:
 node scripts/migrate_to_supabase.js
 ```
 
-자세한 내용은 [SUPABASE_SETUP_GUIDE.md](./SUPABASE_SETUP_GUIDE.md) 참고
+자세한 내용은 [SUPABASE_SETUP_GUIDE.md](./docs/SUPABASE_SETUP_GUIDE.md) 참고
 
 ## 📂 프로젝트 구조
 
@@ -168,11 +168,17 @@ PresidentHistoryTracker/
 ├── scripts/                     # 유틸리티 스크립트
 │   ├── create_supabase_tables.sql   # Supabase 스키마
 │   └── migrate_to_supabase.js       # 데이터 마이그레이션
+├── docs/                        # 프로젝트 문서
+│   ├── SUPABASE_SETUP_GUIDE.md      # Supabase 설정 가이드
+│   ├── SUPABASE_MIGRATION_GUIDE.md  # 마이그레이션 가이드
+│   ├── DB_INTEGRATION_PLAN.md       # DB 통합 계획
+│   ├── CHANGELOG.md                 # 변경 이력
+│   └── instruction.md               # 개발 지침
 ├── .env.local                   # 환경 변수 (Git 제외)
 ├── .env.example                 # 환경 변수 템플릿
-├── SUPABASE_SETUP_GUIDE.md      # Supabase 설정 가이드
-├── SUPABASE_MIGRATION_GUIDE.md  # 마이그레이션 가이드
-└── README.md
+├── CLAUDE.md                    # 프로젝트 컨텍스트
+├── README.md                    # 프로젝트 소개
+└── ROADMAP.md                   # 개발 로드맵
 ```
 
 ## 🎨 디자인 시스템
@@ -220,10 +226,11 @@ PresidentHistoryTracker/
 - [x] 프로덕션 준비 완료
 
 ### Phase 5: 배포 및 최적화 (현재)
-- [ ] Vercel 배포
+- [x] Vercel 배포
 - [ ] 도메인 연결
-- [ ] 성능 모니터링
+- [ ] 성능 최적화
 - [ ] SEO 최적화
+- [ ] 모니터링 설정
 
 ### Phase 6: 고급 기능 (계획)
 - [ ] 실시간 데이터 동기화

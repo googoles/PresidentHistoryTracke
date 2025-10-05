@@ -18,15 +18,16 @@
 
 ### 작업 목록
 
-#### 5.1 Vercel 배포 ⏳
-- [ ] Vercel 프로젝트 생성 및 GitHub 연동
-- [ ] 환경 변수 설정 (REACT_APP_SUPABASE_URL, REACT_APP_SUPABASE_ANON_KEY)
-- [ ] 첫 배포 및 동작 확인
+#### 5.1 Vercel 배포 ✅
+- [x] Vercel 프로젝트 생성 및 GitHub 연동
+- [x] 환경 변수 설정 (REACT_APP_SUPABASE_URL, REACT_APP_SUPABASE_ANON_KEY)
+- [x] 첫 배포 및 동작 확인
 - [ ] 도메인 연결 (선택사항)
-- [ ] SSL/TLS 인증서 확인
+- [x] SSL/TLS 인증서 확인
 
 **예상 소요 시간**: 1-2시간
 **난이도**: 쉬움
+**완료일**: 2025-10-06
 
 #### 5.2 성능 최적화
 - [ ] React.lazy()를 사용한 코드 스플리팅
