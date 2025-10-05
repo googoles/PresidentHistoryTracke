@@ -18,22 +18,18 @@ function App() {
   const { officials, loading: officialsLoading, error: officialsError } = useDBOfficials();
   const { regions, loading: regionsLoading } = useDBRegions();
 
-  const [selectedRegion, setSelectedRegion] = useState('seoul');
+  const [selectedRegion, setSelectedRegion] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [mainView, setMainView] = useState('regions'); // 'regions' or 'officials'
   const [selectedOfficial, setSelectedOfficial] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState('current'); // 'current' or 'historical'
 
   // Compute all memoized values BEFORE any conditional returns
   const regionPromises = useMemo(() => {
-    if (selectedPeriod === 'historical' && selectedRegion === 'gyeonggi') {
-      return promises.gyeonggi_historical || [];
-    }
     return getPromisesByRegion(promises, selectedRegion);
-  }, [promises, selectedRegion, selectedPeriod]);
+  }, [promises, selectedRegion]);
 
   const filteredPromises = useMemo(() => {
     const filters = {
@@ -48,11 +44,16 @@ function App() {
 
   const allPromises = useMemo(() => {
     const promisesList = [];
-    Object.entries(promises).forEach(([region, regionPromises]) => {
-      regionPromises.forEach(promise => {
-        promisesList.push(promise);
+    if (promises && typeof promises === 'object') {
+      Object.entries(promises).forEach(([region, regionPromises]) => {
+        if (Array.isArray(regionPromises)) {
+          regionPromises.forEach(promise => {
+            promisesList.push(promise);
+          });
+        }
       });
-    });
+    }
+    console.log('[App] All Promises Count:', promisesList.length);
     return promisesList;
   }, [promises]);
 
@@ -81,17 +82,6 @@ function App() {
   }
 
   const currentRegion = regions[selectedRegion];
-
-  const getCurrentOfficialInfo = () => {
-    if (selectedRegion === 'gyeonggi' && selectedPeriod === 'historical') {
-      return {
-        leader: '이재명',
-        party: '더불어민주당',
-        term: '2018.07.01 ~ 2022.06.30'
-      };
-    }
-    return currentRegion;
-  };
 
   const handleSelectOfficial = (official) => {
     setSelectedOfficial(official);
@@ -157,9 +147,8 @@ function App() {
 
         {mainView === 'officials' ? (
           selectedOfficial ? (
-            <OfficialDetail 
+            <OfficialDetail
               official={selectedOfficial}
-              promises={allPromises}
               onBack={handleBackToList}
             />
           ) : (
@@ -176,108 +165,89 @@ function App() {
               onRegionSelect={setSelectedRegion} 
             />
 
-            {/* Historical Period Selector */}
-            {selectedRegion === 'gyeonggi' && (
-              <div className="mb-6 flex justify-center">
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-1 flex gap-1">
-                  <button
-                    onClick={() => setSelectedPeriod('current')}
-                    className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
-                      selectedPeriod === 'current'
-                        ? 'bg-blue-500 text-white shadow-sm'
-                        : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    현재 (김동연)
-                  </button>
-                  <button
-                    onClick={() => setSelectedPeriod('historical')}
-                    className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
-                      selectedPeriod === 'historical'
-                        ? 'bg-blue-500 text-white shadow-sm'
-                        : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    이전 (이재명)
-                  </button>
+            {/* Show message if no region selected */}
+            {!selectedRegion ? (
+              <div className="bg-blue-50 dark:bg-slate-800/50 border border-blue-200 dark:border-slate-600 rounded-lg p-12 text-center">
+                <Map className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-slate-100 mb-2">
+                  지역을 선택해주세요
+                </h3>
+                <p className="text-gray-600 dark:text-slate-300">
+                  위 지도에서 관심있는 지역을 클릭하면 해당 지역의 공약 현황을 확인할 수 있습니다.
+                </p>
+              </div>
+            ) : (
+              <>
+                {currentRegion && (
+                  <div className="mb-6 bg-blue-50 dark:bg-slate-800/50 border border-blue-200 dark:border-slate-600 rounded-lg p-4">
+                    <h2 className="text-xl font-bold text-blue-900 dark:text-slate-100 mb-2">
+                      {currentRegion.name} - 국회의원 공약 현황
+                    </h2>
+                    <p className="text-sm text-gray-600 dark:text-slate-400 mb-3">
+                      이 지역 국회의원들의 공약 이행 현황입니다. 광역단체장 공약은 "인물별 공약" 탭에서 확인하세요.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">지역:</span>{' '}
+                        <span className="text-gray-900 dark:text-white">{currentRegion.name}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">유형:</span>{' '}
+                        <span className="text-gray-900 dark:text-white">{currentRegion.type}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">인구:</span>{' '}
+                        <span className="text-gray-900 dark:text-white">{currentRegion.population}명</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <StatsOverview promises={filteredPromises} />
+
+                <FilterPanel
+                  selectedLevel={selectedLevel}
+                  selectedCategory={selectedCategory}
+                  selectedStatus={selectedStatus}
+                  searchTerm={searchTerm}
+                  onLevelChange={setSelectedLevel}
+                  onCategoryChange={setSelectedCategory}
+                  onStatusChange={setSelectedStatus}
+                  onSearchChange={setSearchTerm}
+                />
+
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
+                    공약 목록 ({filteredPromises.length}개)
+                  </h3>
                 </div>
-              </div>
+
+                {filteredPromises.length === 0 ? (
+                  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-12 text-center">
+                    <p className="text-gray-500 dark:text-slate-400 text-lg">
+                      검색 조건에 맞는 공약이 없습니다.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSelectedLevel('all');
+                        setSelectedCategory('all');
+                        setSelectedStatus('all');
+                        setSearchTerm('');
+                      }}
+                      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                      필터 초기화
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {filteredPromises.map((promise) => (
+                      <PromiseCard key={promise.id} promise={promise} />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
-
-        {currentRegion && (
-          <div className="mb-6 bg-blue-50 dark:bg-slate-800/50 border border-blue-200 dark:border-slate-600 rounded-lg p-4">
-            <h2 className="text-xl font-bold text-blue-900 dark:text-slate-100 mb-2">
-              {currentRegion.name} 공약 현황
-              {selectedRegion === 'gyeonggi' && selectedPeriod === 'historical' && (
-                <span className="text-sm font-normal text-blue-700 dark:text-blue-300 ml-2">(이재명 시기)</span>
-              )}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span className="font-medium text-gray-700 dark:text-gray-300">단체장:</span>{' '}
-                <span className="text-gray-900 dark:text-white">{getCurrentOfficialInfo().leader}</span>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700 dark:text-gray-300">소속정당:</span>{' '}
-                <span className={getCurrentOfficialInfo().party === '국민의힘' ? 'text-red-600' : 'text-blue-600'}>
-                  {getCurrentOfficialInfo().party}
-                </span>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700 dark:text-gray-300">임기:</span>{' '}
-                <span className="text-gray-900 dark:text-white">{getCurrentOfficialInfo().term}</span>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700 dark:text-gray-300">인구:</span>{' '}
-                <span className="text-gray-900 dark:text-white">{currentRegion.population}명</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <StatsOverview promises={filteredPromises} />
-
-        <FilterPanel
-          selectedLevel={selectedLevel}
-          selectedCategory={selectedCategory}
-          selectedStatus={selectedStatus}
-          searchTerm={searchTerm}
-          onLevelChange={setSelectedLevel}
-          onCategoryChange={setSelectedCategory}
-          onStatusChange={setSelectedStatus}
-          onSearchChange={setSearchTerm}
-        />
-
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">
-            공약 목록 ({filteredPromises.length}개)
-          </h3>
-        </div>
-
-        {filteredPromises.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <p className="text-gray-500 text-lg">
-              검색 조건에 맞는 공약이 없습니다.
-            </p>
-            <button
-              onClick={() => {
-                setSelectedLevel('all');
-                setSelectedCategory('all');
-                setSelectedStatus('all');
-                setSearchTerm('');
-              }}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              필터 초기화
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredPromises.map((promise) => (
-              <PromiseCard key={promise.id} promise={promise} />
-            ))}
-          </div>
-        )}
           </>
         )}
       </main>

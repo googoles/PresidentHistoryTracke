@@ -2,23 +2,31 @@ import React, { useState, useMemo } from 'react';
 import { ArrowLeft, User, TrendingUp, CheckCircle, XCircle, Clock, Calendar, Filter } from 'lucide-react';
 import PromiseCard from './PromiseCard';
 import { filterPromises, sortPromisesByStatus } from '../utils/helpers';
+import { useOfficialPledges } from '../hooks/useOfficialPledges';
 
-const OfficialDetail = ({ official, promises, onBack }) => {
+const OfficialDetail = ({ official, onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const officialPromises = useMemo(() => {
-    return promises.filter(promise => official.promiseIds.includes(promise.id));
-  }, [official, promises]);
+  // Fetch official's pledges from DB
+  const { pledges: officialPromises, loading: pledgesLoading, error: pledgesError } = useOfficialPledges(official);
 
   const filteredPromises = useMemo(() => {
+    console.log('[OfficialDetail] officialPromises:', officialPromises);
+    console.log('[OfficialDetail] officialPromises.length:', officialPromises.length);
+
     const filters = {
+      level: 'all', // Add missing level filter
       category: selectedCategory,
       status: selectedStatus,
       searchTerm: searchTerm
     };
     const filtered = filterPromises(officialPromises, filters);
+
+    console.log('[OfficialDetail] After filtering:', filtered.length);
+    console.log('[OfficialDetail] Filters:', filters);
+
     return sortPromisesByStatus(filtered);
   }, [officialPromises, selectedCategory, selectedStatus, searchTerm]);
 
@@ -27,6 +35,44 @@ const OfficialDetail = ({ official, promises, onBack }) => {
     : 0;
 
   const categories = [...new Set(officialPromises.map(p => p.category))];
+
+  // Show loading state
+  if (pledgesLoading) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <button
+          onClick={onBack}
+          className="mb-6 flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>목록으로 돌아가기</span>
+        </button>
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-12 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-slate-300">공약 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (pledgesError) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <button
+          onClick={onBack}
+          className="mb-6 flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>목록으로 돌아가기</span>
+        </button>
+        <div className="bg-red-50 dark:bg-red-900/20 rounded-lg shadow-md p-12 text-center">
+          <p className="text-red-600 dark:text-red-400 mb-2">공약 정보를 불러오는데 실패했습니다.</p>
+          <p className="text-gray-600 dark:text-slate-400 text-sm">{pledgesError.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -168,15 +214,38 @@ const OfficialDetail = ({ official, promises, onBack }) => {
 
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-slate-100">
-          공약 목록 ({filteredPromises.length}개)
+          공약 목록 (전체: {officialPromises.length}개, 필터링: {filteredPromises.length}개)
         </h3>
       </div>
 
+      {/* Debug Info */}
+      {officialPromises.length === 0 && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+          <p className="text-yellow-800 dark:text-yellow-300 text-sm">
+            <strong>디버그:</strong> DB에서 공약을 가져오지 못했습니다. 콘솔을 확인하세요.
+          </p>
+        </div>
+      )}
+
       {filteredPromises.length === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-12 text-center">
-          <p className="text-gray-500 dark:text-slate-400 text-lg">
-            검색 조건에 맞는 공약이 없습니다.
+          <p className="text-gray-500 dark:text-slate-400 text-lg mb-2">
+            {officialPromises.length === 0
+              ? '이 후보자의 공약 정보가 없습니다.'
+              : '검색 조건에 맞는 공약이 없습니다.'}
           </p>
+          {officialPromises.length > 0 && (
+            <button
+              onClick={() => {
+                setSelectedCategory('all');
+                setSelectedStatus('all');
+                setSearchTerm('');
+              }}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              필터 초기화
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
