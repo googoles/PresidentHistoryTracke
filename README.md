@@ -14,13 +14,19 @@
 - ✅ **반응형 디자인**: 모바일, 태블릿, 데스크톱 모든 기기 지원
 - ✅ **클라우드 DB 연동**: Supabase PostgreSQL 완전 마이그레이션
 
+### 진행 중인 작업
+- 🔧 **Admin Dashboard**: 공약 및 뉴스 관리 시스템 (진행 중)
+  - ✅ Admin UI 기본 구조 완료
+  - ✅ 공약/뉴스 CRUD API 구현
+  - ⏳ 모달 UI 구현 중
+
 ### 다음 단계 계획
+- 📰 **뉴스 시스템**: 공약별 관련 뉴스 자동/수동 수집
 - 🔄 **실시간 데이터 동기화**: Supabase Realtime 구독
 - 📊 **데이터 시각화**: Chart.js를 활용한 통계 차트
 - 🔔 **알림 기능**: 공약 상태 변경 알림
 - 👥 **사용자 인증**: Supabase Auth 연동
 - 📱 **PWA 지원**: 오프라인 모드 및 앱 설치
-- 🚀 **성능 최적화**: 이미지 최적화, 코드 스플리팅
 
 ## 🛠 기술 스택
 
@@ -143,6 +149,8 @@ PresidentHistoryTracker/
 │   │   ├── OfficialsList.jsx        # 국회의원 목록 (검색/필터/페이지네이션)
 │   │   ├── OfficialDetail.jsx       # 국회의원 상세 (공약 목록)
 │   │   └── DarkModeToggle.jsx       # 다크모드 토글
+│   ├── pages/                   # 페이지 컴포넌트
+│   │   └── AdminDashboard.jsx       # Admin 관리 페이지 ✨ NEW
 │   ├── contexts/                # Context API
 │   │   ├── ElectionDataContext.jsx  # 데이터 소스 Context
 │   │   └── DarkModeContext.jsx      # 다크모드 Context
@@ -153,7 +161,7 @@ PresidentHistoryTracker/
 │   ├── services/                # 데이터 소스 레이어
 │   │   ├── IElectionDataSource.js   # 추상 인터페이스
 │   │   ├── LocalDBDataSource.js     # SQLite 구현체
-│   │   └── SupabaseDataSource.js    # Supabase 구현체 ✨ NEW
+│   │   └── SupabaseDataSource.js    # Supabase 구현체 (CRUD 포함)
 │   ├── lib/                     # 라이브러리 설정
 │   │   └── supabaseClient.js        # Supabase 클라이언트
 │   ├── data/                    # 변환 레이어
@@ -164,13 +172,17 @@ PresidentHistoryTracker/
 ├── public/
 │   ├── data/
 │   │   └── election_data.db         # SQLite DB (백업용)
-│   └── korea-map.svg                # 한국 지도 SVG
+│   ├── korea-map.svg                # 한국 지도 SVG
+│   ├── robots.txt                   # SEO: 크롤러 설정
+│   └── sitemap.xml                  # SEO: 사이트맵
 ├── scripts/                     # 유틸리티 스크립트
-│   ├── create_supabase_tables.sql   # Supabase 스키마
+│   ├── create_supabase_tables.sql   # Supabase 후보자/공약 스키마
+│   ├── create_admin_tables.sql      # Admin 시스템 스키마 ✨ NEW
 │   └── migrate_to_supabase.js       # 데이터 마이그레이션
 ├── docs/                        # 프로젝트 문서
 │   ├── SUPABASE_SETUP_GUIDE.md      # Supabase 설정 가이드
 │   ├── SUPABASE_MIGRATION_GUIDE.md  # 마이그레이션 가이드
+│   ├── ADMIN_SYSTEM_PLAN.md         # Admin 시스템 계획 ✨ NEW
 │   ├── DB_INTEGRATION_PLAN.md       # DB 통합 계획
 │   ├── CHANGELOG.md                 # 변경 이력
 │   └── instruction.md               # 개발 지침
@@ -232,7 +244,17 @@ PresidentHistoryTracker/
 - [x] SEO 최적화 (Meta tags, robots.txt, sitemap.xml)
 - [ ] 모니터링 설정
 
-### Phase 6: 고급 기능 (계획)
+### Phase 6: Admin Dashboard (진행 중)
+- [x] Admin 시스템 계획 수립
+- [x] Admin UI 기본 구조 생성
+- [x] 공약/뉴스 CRUD API 구현
+- [ ] Supabase에 테이블 생성
+- [ ] 공약 편집 모달 UI
+- [ ] 뉴스 추가 모달 UI
+- [ ] Supabase Auth 연동
+
+### Phase 7: 고급 기능 (계획)
+- [ ] 뉴스 자동 수집 시스템
 - [ ] 실시간 데이터 동기화
 - [ ] 사용자 인증 (Supabase Auth)
 - [ ] 공약 업데이트 알림

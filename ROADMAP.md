@@ -289,6 +289,87 @@
 
 ---
 
+## 🌟 Phase 6: 사용자 평가 시스템 (핵심 기능 - 최우선)
+
+### 목표
+정치인과 공약에 대한 사용자 평가 및 댓글 시스템 구축
+
+### Week 1: 인증 및 기본 평가 시스템
+**예상 소요 시간**: 13-17시간
+
+#### 6.1 Supabase Auth 구현 ✨ NEW
+- [ ] Google OAuth 2.0 설정
+  - Google Cloud Console에서 OAuth 클라이언트 생성
+  - Supabase에서 Google Provider 활성화
+- [ ] AuthContext 생성
+  - 로그인/로그아웃 함수
+  - 사용자 세션 관리
+- [ ] LoginButton 컴포넌트
+  - Google 로그인 버튼
+  - 사용자 프로필 드롭다운
+- [ ] user_profiles 테이블 생성
+
+**난이도**: 중간
+**우선순위**: 🔴 최우선
+
+#### 6.2 평가 시스템 DB 및 API ✨ NEW
+- [ ] Database 테이블 생성
+  - candidate_ratings (정치인 평가)
+  - pledge_ratings (공약 평가)
+  - rating_likes (공감 기능)
+  - rating_reports (신고 시스템)
+- [ ] SupabaseDataSource에 평가 CRUD 메서드
+  - createCandidateRating, getCandidateRatings
+  - createPledgeRating, getPledgeRatings
+  - likeRating, reportRating
+- [ ] RLS 정책 설정 (1인 1표, 본인만 수정)
+
+**난이도**: 중간
+**우선순위**: 🟠 높음
+
+#### 6.3 평가 UI 컴포넌트 ✨ NEW
+- [ ] RatingStars 컴포넌트 (별점 입력)
+- [ ] CandidateRatingSection (정치인 평가 섹션)
+  - 평균 평점 표시
+  - 평가 작성 폼
+  - 평가 목록 (페이지네이션)
+- [ ] PledgeRatingSection (공약 평가 섹션)
+- [ ] RatingCard (개별 평가 카드)
+  - 공감 버튼
+  - 신고 버튼
+
+**난이도**: 중간~높음
+**우선순위**: 🟡 중간
+
+### Week 2: 통계 및 고급 기능 (선택)
+**예상 소요 시간**: 10-14시간
+
+#### 6.4 통계 및 시각화
+- [ ] 평가 통계 API
+  - 정치인별 평균 평점
+  - 시간별 평점 추이
+  - 지역별/정당별 비교
+- [ ] RatingStats 컴포넌트
+  - 평점 분포 차트
+  - 시간별 추이 그래프
+- [ ] LeaderBoard 컴포넌트
+
+**난이도**: 중간~높음
+**우선순위**: 🟢 낮음
+
+#### 6.5 조작 방지 및 품질 관리
+- [ ] 신고 검토 Admin 페이지
+- [ ] 신뢰도 점수 시스템
+- [ ] 평가 작성 제한 (Rate Limiting)
+- [ ] reCAPTCHA 통합
+
+**난이도**: 높음
+**우선순위**: 🔵 낮음
+
+**상세 계획**: [USER_RATING_SYSTEM_PLAN.md](./docs/USER_RATING_SYSTEM_PLAN.md)
+
+---
+
 **업데이트**: 2025-10-06
-**버전**: 1.0.0
-**현재 Phase**: 5 (배포 및 최적화)
+**버전**: 1.1.0
+**현재 Phase**: 6 (사용자 평가 시스템 - 기획 완료)

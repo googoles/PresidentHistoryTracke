@@ -323,6 +323,177 @@ export class SupabaseDataSource extends IElectionDataSource {
     }));
   }
 
+  // ============================================
+  // Admin: Pledge Management
+  // ============================================
+
+  /**
+   * 공약 생성
+   */
+  async createPledge(pledgeData) {
+    const { data, error } = await this.client
+      .from('pledges')
+      .insert([pledgeData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[Supabase] Error creating pledge:', error);
+      throw error;
+    }
+
+    return data;
+  }
+
+  /**
+   * 공약 수정
+   */
+  async updatePledge(pledgeId, pledgeData) {
+    const { data, error } = await this.client
+      .from('pledges')
+      .update(pledgeData)
+      .eq('pledge_id', pledgeId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[Supabase] Error updating pledge:', error);
+      throw error;
+    }
+
+    return data;
+  }
+
+  /**
+   * 공약 삭제
+   */
+  async deletePledge(pledgeId) {
+    const { error } = await this.client
+      .from('pledges')
+      .delete()
+      .eq('pledge_id', pledgeId);
+
+    if (error) {
+      console.error('[Supabase] Error deleting pledge:', error);
+      throw error;
+    }
+
+    return true;
+  }
+
+  // ============================================
+  // Admin: Pledge News Management
+  // ============================================
+
+  /**
+   * 공약별 뉴스 조회
+   */
+  async getNewsByPledge(pledgeId) {
+    const { data, error } = await this.client
+      .from('pledge_news')
+      .select('*')
+      .eq('pledge_id', pledgeId)
+      .order('published_date', { ascending: false });
+
+    if (error) {
+      console.error('[Supabase] Error fetching news:', error);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+  /**
+   * 뉴스 추가
+   */
+  async createNews(newsData) {
+    const { data, error } = await this.client
+      .from('pledge_news')
+      .insert([newsData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[Supabase] Error creating news:', error);
+      throw error;
+    }
+
+    return data;
+  }
+
+  /**
+   * 뉴스 수정
+   */
+  async updateNews(newsId, newsData) {
+    const { data, error } = await this.client
+      .from('pledge_news')
+      .update(newsData)
+      .eq('news_id', newsId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[Supabase] Error updating news:', error);
+      throw error;
+    }
+
+    return data;
+  }
+
+  /**
+   * 뉴스 삭제
+   */
+  async deleteNews(newsId) {
+    const { error } = await this.client
+      .from('pledge_news')
+      .delete()
+      .eq('news_id', newsId);
+
+    if (error) {
+      console.error('[Supabase] Error deleting news:', error);
+      throw error;
+    }
+
+    return true;
+  }
+
+  /**
+   * 모든 뉴스 조회 (최근순)
+   */
+  async getAllNews(limit = 100) {
+    const { data, error } = await this.client
+      .from('pledge_news')
+      .select(`
+        *,
+        pledges!inner (
+          pledge_title,
+          pledge_realm,
+          candidates!inner (
+            name,
+            sgg_name,
+            party_name
+          )
+        )
+      `)
+      .order('published_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('[Supabase] Error fetching all news:', error);
+      throw error;
+    }
+
+    // Flatten the nested structure
+    return (data || []).map(news => ({
+      ...news,
+      pledge_title: news.pledges.pledge_title,
+      pledge_realm: news.pledges.pledge_realm,
+      candidate_name: news.pledges.candidates.name,
+      sgg_name: news.pledges.candidates.sgg_name,
+      party_name: news.pledges.candidates.party_name
+    }));
+  }
+
   /**
    * 연결 종료 (Supabase는 자동 관리)
    */

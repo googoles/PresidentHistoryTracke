@@ -5,11 +5,12 @@ import { useDBPromises } from './hooks/useDBPromises';
 import { useDBOfficials } from './hooks/useDBOfficials';
 import { useDBRegions } from './hooks/useDBRegions';
 import { filterPromises, getPromisesByRegion, sortPromisesByStatus } from './utils/helpers';
-import { Building2, Map, Users } from 'lucide-react';
+import { Building2, Map, Users, Settings } from 'lucide-react';
 
 // Lazy load components for code splitting
 const OfficialsList = lazy(() => import('./components/OfficialsList'));
 const OfficialDetail = lazy(() => import('./components/OfficialDetail'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 function App() {
   // Fetch data from DB
@@ -22,7 +23,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [mainView, setMainView] = useState('regions'); // 'regions' or 'officials'
+  const [mainView, setMainView] = useState('regions'); // 'regions', 'officials', or 'admin'
   const [selectedOfficial, setSelectedOfficial] = useState(null);
 
   // Compute all memoized values BEFORE any conditional returns
@@ -150,10 +151,32 @@ function App() {
               <Users className="w-4 h-4 mr-2 flex-shrink-0" />
               인물별 공약
             </button>
+            <button
+              onClick={() => {
+                setMainView('admin');
+                setSelectedOfficial(null);
+              }}
+              className={`flex items-center px-4 py-2 rounded-md transition-all duration-200 whitespace-nowrap ${
+                mainView === 'admin'
+                  ? 'bg-purple-500 text-white shadow-sm'
+                  : 'text-gray-600 dark:text-slate-300 hover:text-gray-800 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700'
+              }`}
+            >
+              <Settings className="w-4 h-4 mr-2 flex-shrink-0" />
+              Admin
+            </button>
           </div>
         </div>
 
-        {mainView === 'officials' ? (
+        {mainView === 'admin' ? (
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            </div>
+          }>
+            <AdminDashboard />
+          </Suspense>
+        ) : mainView === 'officials' ? (
           <Suspense fallback={
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
